@@ -77,13 +77,13 @@ The _manage.py_ file is a command-line utility to manage the specific Django pro
 
 The app directory within your root directory is the actual Python package for your project. The name of this project directory is the name of the Python package you will need to use to import anything inside of it. For example project _mysite_, would have _mysite.urls_.
 
-Within the project directory, __init__.py exists as an empty file that marks it as a Python package. 
+Within the project directory, *__init__.py* exists as an empty file that marks it as a Python package. 
 
-Within the project directory, _settings.py_ has specific configuration information about this Django project. 
+Within the project directory, *settings.py* has specific configuration information about this Django project. 
 
-Within the project directory, _urls.py_ has the URL declarations for this Django project, essentially this is the table of contents. 
+Within the project directory, *urls.py* has the URL declarations for this Django project, essentially this is the table of contents. 
 
-Within the project directory, _wsgi.py_ has the configuration information for the WSGI-compatible web servers that will serve the Django project.
+Within the project directory, *wsgi.py* has the configuration information for the WSGI-compatible web servers that will serve the Django project.
 
 
 
@@ -97,6 +97,26 @@ The Django App Server layer is an AWS OpsWorks layer that will provide a bluepri
 *Note*: Make sure that you do not use the app name of *test* or *django* as these names will cause conflicts with Python or Django.
 
 *Note*: When you choose a location for your Django source, don't drop it in your web server's document root. Django is separate from your web server and you don't want to expose the underlying code.
+
+## Walkthrough
+
+### Prerequisites and Assumptions
+
+For the purposes of this walkthrough, we assume that you have the following setup on your working environment:
+
+* git (or some mechanism to access and download the sample repo)
+* Chef Development Kit (chefdk)
+* Vagrant 
+
+We also assume that in your AWS environment that you have:
+
+* Signed up for an AWS account
+* Availability of an IAM User
+* Service Access Permissions with your IAM user
+
+If you do not have the AWS environment minimal requirements, check out the process here to get this setup. 
+
+### 
 
 ## Further Resources
 
