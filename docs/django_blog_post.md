@@ -122,15 +122,31 @@ You don't have to use the AWS CLI, just take the process and apply it to the GUI
 
 ### 
 
-SERVICE\_ROLE\_ARN=$(aws opsworks describe-stacks --query 'Stacks[*].ServiceRoleArn' --output text |awk '{ print $1 }')
+*Note*: The AWS OpsWorks CLI endpoint is only available in region *us-east-1*. This region specification is separate from the stack's region configuration. 
 
 
-DEFAULT\_INSTANCE\_PROFILE\_ARN=$(aws opsworks describe-stacks --query 'Stacks[*].DefaultInstanceProfileArn' --output text |awk '{ print $1 }')
+Amazon Resource Names(ARNs) uniquely identify resources on AWS. To work with AWS OpsWorks, we need to obtain the *ServiceRoleArn* ARN. 
 
-STACK\_ID=$(aws opsworks --region us-east-1 create-stack --name chef-12 --service-role-arn $SERVICE_ROLE_ARN --default-instance-profile-arn $DEFAULT\_INSTANCE\_PROFILE_ARN --configuration-manager Name=Chef,Version=12 --stack-region us-west-2 --output text)
+```
+SERVICE_ROLE_ARN=$(aws opsworks describe-stacks --query 'Stacks[*].ServiceRoleArn' --output text |awk '{ print $1 }')
+```
+
+In this command, we are using the AWS OpsWorks CLI *describe-stacks* command to pull information about the stacks, pulling out just the ServiceRoleArn in order to use it later. 
+
+```
+DEFAULT_INSTANCE_PROFILEs_ARN=$(aws opsworks describe-stacks --query 'Stacks[*].DefaultInstanceProfileArn' --output text |awk '{ print $1 }')
+```
+
+In this command, we are using the AWS OpsWorks CLI *describe-stacks* command to pull information about the stacks, pulling out just  DefaultInstanceProfileArn.
+
+STACK\_ID=$(aws opsworks --region us-east-1 create-stack --name chef-12 --service-role-arn $SERVICE_ROLE_ARN --default-instance-profile-arn $DEFAULT\_
+
+INSTANCE\_PROFILE_ARN --configuration-manager Name=Chef,Version=12 --stack-region us-west-2 --output text)
 LAYER_ID=$(aws opsworks --region us-east-1 create-layer --stack-id $STACK_ID --type custom --name kustom --shortname kustom --output text)
 INSTANCE_ID=$(aws opsworks --region us-east-1 create-instance --stack-id $STACK\_ID --layer-id $LAYER_ID --instance-type c3.large --output text)
 aws opsworks --region us-east-1 start-instance --instance-id $INSTANCE_ID
+
+ssh ec2-user@IPADDRESS -i SSH\_KEY\_PAIR.pem 
 
 
 ## Further Resources
