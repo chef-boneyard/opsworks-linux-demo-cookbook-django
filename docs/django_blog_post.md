@@ -53,11 +53,11 @@ Django follows the MVC(Model View Controller) architectural pattern. The model w
 
 When creating a web application, we generally create a set of controllers, models, and views. The reason that it uses this pattern is to provide some separation between the presentation (what the user sees) and the application logic. 
 
-In Django, [the view pattern is implemented through an abstraction called a  template and the controller pattern is implemented through an abstraction called a view](https://docs.djangoproject.com/en/1.8/faq/general/#django-appears-to-be-a-mvc-framework-but-you-call-the-controller-the-view-and-the-view-the-template-how-come-you-don-t-use-the-standard-names). 
+In Django, the view pattern is implemented through an abstraction called a  template and the controller pattern is implemented through an abstraction called a view.[1][1](). 
 
 ### Django Installation Requirements
 
-There are core applications required to install [Django](https://docs.djangoproject.com): Python, a package management system like pip, and optionally virtualenv, a way to isolate your python environments. You have a number of choices that may change how you want to deploy within your environment, for example what version of Python you are using as a standard within your organization. Before you run something in production, you should always understand the implications of what you are doing, and why. 
+There are core applications required to install [Django](https://docs.djangoproject.com): Python, a package management system like pip, and optionally **virtualenv**, a way to isolate your python environments. You have a number of choices that may change how you want to deploy within your environment, for example what version of Python you are using as a standard within your organization. Before you run something in production, you should always understand the implications of what you are doing, and why. 
 
 Understanding the requirements of our application help us decide on how we will approach automating the installation. It also helps us in understanding whether a community cookbook serves our needs, what customizations we might need, and the overall effort of those customizations.
 
@@ -65,11 +65,11 @@ Understanding the requirements of our application help us decide on how we will 
 
 In order for Django to be useful, you also need a few additional applications: WSGI-compatible web server, and a database application.
 
-The Web Server Gateway Interface (WSGI) is a specification for a simple and universal interface between a web server and web application for Python, in other words the communication strategy. The goal is that any application written to the spec will run on any server that also complies to the spec.
+The **Web Server Gateway Interface (WSGI)** is a specification for a simple and universal interface between a web server and web application for Python, in other words the communication strategy. The goal is that any application written to the spec will run on any server that also complies to the spec.
 
 A WSGI-compatible web server will receive client requests and pass them to the underlying WSGI-compatible web application. It will also receive responses from the web application and return them to the client. 
 
-In this how-to, we will use gunicorn, a lightweight Python WSGI HTTP server. 
+In this how-to, we will use **gunicorn**, a lightweight Python WSGI HTTP server. 
 
 ### Django File Structure
 
@@ -77,17 +77,17 @@ The root directory naming is useful to you but doesn't matter to Django. You can
 
 Within the root directory, there are a number of critical files.
 
-The *manage.py* file is a command-line utility to manage the specific Django project. 
+The `manage.py` file is a command-line utility to manage the specific Django project. 
 
-The app directory within your root directory is the actual Python package for your project. The name of this project directory is the name of the Python package you will need to use to import anything inside of it. For example project *mysite*, would have *mysite.urls*.
+The app directory within your root directory is the actual Python package for your project. The name of this project directory is the name of the Python package you will need to use to import anything inside of it. For example project **mysite**, would have `mysite.urls`.
 
-Within the project directory, *\_\_init\_\_.py* exists as an empty file that marks it as a Python package. 
+Within the project directory, `__init__.py` exists as an empty file that marks it as a Python package. 
 
-Within the project directory, *settings.py* has specific configuration information about this Django project. 
+Within the project directory, `settings.py` has specific configuration information about this Django project. 
 
-Within the project directory, *urls.py* has the URL declarations for this Django project, essentially this is the table of contents. 
+Within the project directory, `urls.py` has the URL declarations for this Django project, essentially this is the table of contents. 
 
-Within the project directory, *wsgi.py* has the configuration information for the WSGI-compatible web servers that will serve the Django project.
+Within the project directory, `wsgi.py` has the configuration information for the WSGI-compatible web servers that will serve the Django project.
 
 ## Introducing the Chef Community Supermarket
 
@@ -105,7 +105,7 @@ The Django App Server layer is an AWS OpsWorks layer that will provide a bluepri
  
 ### Using the Django App Server layer
 
-**Note**: Make sure that you do not use the app name of *test* or *django* as these names will cause conflicts with Python or Django.
+**Note**: Make sure that you do not use the app name of **test** or **django** as these names will cause conflicts with Python or Django.
 
 **Note**: When you choose a location for your Django source, don't drop it in your web server's document root. Django is separate from your web server and you don't want to expose the underlying code.
 
@@ -167,3 +167,7 @@ ssh ec2-user@IPADDRESS -i SSH\_KEY\_PAIR.pem
 * [AWS CLI](https://aws.amazon.com/cli/)
 * [AWS OpsWorks Lifecycle Events](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html)
 * [Green Unicorn](http://gunicorn.org/)
+
+## Footnotes
+
+[1]: https://docs.djangoproject.com/en/1.8/faq/general/#django-appears-to-be-a-mvc-framework-but-you-call-the-controller-the-view-and-the-view-the-template-how-come-you-don-t-use-the-standard-names
