@@ -53,7 +53,7 @@ Django follows the MVC(Model View Controller) architectural pattern. The model w
 
 When creating a web application, we generally create a set of controllers, models, and views. The reason that it uses this pattern is to provide some separation between the presentation (what the user sees) and the application logic. 
 
-In Django, the view pattern is implemented through an abstraction called a  template and the controller pattern is implemented through an abstraction called a view.[1][1](). 
+In Django, the view pattern is implemented through an abstraction called a  template and the controller pattern is implemented through an abstraction called a view.[1][1]. 
 
 ### Django Installation Requirements
 
@@ -167,7 +167,5 @@ ssh ec2-user@IPADDRESS -i SSH\_KEY\_PAIR.pem
 * [AWS CLI](https://aws.amazon.com/cli/)
 * [AWS OpsWorks Lifecycle Events](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html)
 * [Green Unicorn](http://gunicorn.org/)
-
-## Footnotes
 
 [1]: https://docs.djangoproject.com/en/1.8/faq/general/#django-appears-to-be-a-mvc-framework-but-you-call-the-controller-the-view-and-the-view-the-template-how-come-you-don-t-use-the-standard-names
