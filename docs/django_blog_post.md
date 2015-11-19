@@ -75,11 +75,11 @@ The root directory naming is useful to you but doesn't matter to Django. You can
 
 Within the root directory, there are a number of critical files.
 
-The _manage.py_ file is a command-line utility to manage the specific Django project. 
+The *manage.py* file is a command-line utility to manage the specific Django project. 
 
-The app directory within your root directory is the actual Python package for your project. The name of this project directory is the name of the Python package you will need to use to import anything inside of it. For example project _mysite_, would have _mysite.urls_.
+The app directory within your root directory is the actual Python package for your project. The name of this project directory is the name of the Python package you will need to use to import anything inside of it. For example project *mysite*, would have *mysite.urls*.
 
-Within the project directory, *__init__.py* exists as an empty file that marks it as a Python package. 
+Within the project directory, *\_\_init\_\_.py* exists as an empty file that marks it as a Python package. 
 
 Within the project directory, *settings.py* has specific configuration information about this Django project. 
 
@@ -114,19 +114,22 @@ We also assume that in your AWS environment that you have:
 * Signed up for an AWS account
 * Availability of an IAM User
 * Service Access Permissions with your IAM user
+* [AWS Command Line Tool(AWS CLI)](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) installed
 
 If you do not have the AWS environment minimal requirements, check out the process here to get this setup. 
 
+You don't have to use the AWS CLI, just take the process and apply it to the GUI in the AWS console.  
+
 ### 
 
-SERVICE_ROLE_ARN=$(aws opsworks describe-stacks --query 'Stacks[*].ServiceRoleArn' --output text |awk '{ print $1 }')
+SERVICE\_ROLE\_ARN=$(aws opsworks describe-stacks --query 'Stacks[*].ServiceRoleArn' --output text |awk '{ print $1 }')
 
 
-DEFAULT_INSTANCE_PROFILE_ARN=$(aws opsworks describe-stacks --query 'Stacks[*].DefaultInstanceProfileArn' --output text |awk '{ print $1 }')
+DEFAULT\_INSTANCE\_PROFILE\_ARN=$(aws opsworks describe-stacks --query 'Stacks[*].DefaultInstanceProfileArn' --output text |awk '{ print $1 }')
 
-STACK_ID=$(aws opsworks --region us-east-1 create-stack --name chef-12 --service-role-arn $SERVICE_ROLE_ARN --default-instance-profile-arn $DEFAULT_INSTANCE_PROFILE_ARN --configuration-manager Name=Chef,Version=12 --stack-region us-west-2 --output text)
+STACK\_ID=$(aws opsworks --region us-east-1 create-stack --name chef-12 --service-role-arn $SERVICE_ROLE_ARN --default-instance-profile-arn $DEFAULT\_INSTANCE\_PROFILE_ARN --configuration-manager Name=Chef,Version=12 --stack-region us-west-2 --output text)
 LAYER_ID=$(aws opsworks --region us-east-1 create-layer --stack-id $STACK_ID --type custom --name kustom --shortname kustom --output text)
-INSTANCE_ID=$(aws opsworks --region us-east-1 create-instance --stack-id $STACK_ID --layer-id $LAYER_ID --instance-type c3.large --output text)
+INSTANCE_ID=$(aws opsworks --region us-east-1 create-instance --stack-id $STACK\_ID --layer-id $LAYER_ID --instance-type c3.large --output text)
 aws opsworks --region us-east-1 start-instance --instance-id $INSTANCE_ID
 
 
