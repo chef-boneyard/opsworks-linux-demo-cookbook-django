@@ -1,10 +1,12 @@
-## Introduction
+# Using Chef Community Cookbooks with AWS OpsWorks 
+
+In this post, I will walk through the process of using community cookbooks with AWS OpsWorks. We'll create a simple web application using Django. This isn't an in-depth guide; while I'll point out some key components to think about with a working example, prior to deploying to your environment you should ensure that you think through your specific concerns. I look forward to hearing your feedback and any modifications that you test out.  
+
+## Background
 
 Web application frameworks provide a set of components that are common across applications allowing an individual to speed up development and deployment of a web application. Functionality like user authentication and authorization, forms, file management, are some examples of these common components. These frameworks exist to speed up delivery so that you don't have to reinvent the wheel each time you want to create a site. 
 
 Django is a free and open source web application framework written in Python. 
-
-The great thing about chef community cookbooks, is that you can reuse what makes sense for you, and create more specific cookbooks and recipes within your environment.
 
 ## Basics
 
@@ -19,6 +21,8 @@ Resources are the basic building blocks of our infrastructure. We can use resour
 Recipes are the algorithm to describe a specific piece of an application that we want to have running on a system. It's the ordered set of resources and potentially additional ruby code for logic and flow control. Just as with a recipe for baking chocolate chip cookies or oatmeal cookies, the recipe will be specific to what we want to create. 
 
 Cookbooks are where we collect all of our recipes, and other supporting files. We can create our own or pull from the community cookbook repository, Supermarket. 
+
+One great thing about chef community cookbooks is that you can reuse what makes sense for you, and create more specific cookbooks and recipes within your environment.
 
 ### OpsWorks Basics
 
@@ -55,8 +59,6 @@ In Django, [the view pattern is implemented through an abstraction called a  tem
 
 There are core applications required to install [Django](https://docs.djangoproject.com): Python, pip, and virtualenv. You have a number of choices that may change how you want to deploy within your environment, for example what version of Python you are using as a standard within your organization. Before you run something in production, you should always understand the implications of what you are doing, and why. 
 
-
-
 ### Django Deployment Requirements 
 
 In order for Django to be useful, you also need a few other applications: WSGI-compatible web server, and a database application.
@@ -65,9 +67,9 @@ The Web Server Gateway Interface (WSGI) is a specification for a simple and univ
 
 A WSGI-compatible web server will receive client requests and pass them to the underlying WSGI-compatible web application. It will also receive responses from the web application and return them to the client. 
 
-In this how-to, we will use gunicorn, a Python WSGI HTTP server. 
+In this how-to, we will use gunicorn, a lightweight Python WSGI HTTP server. 
 
-### File Structure
+### Django File Structure
 
 The root directory naming is useful to you but doesn't matter to Django. You can name it whatever you want, and is just a container for the Django project.
 
@@ -85,9 +87,6 @@ Within the project directory, *urls.py* has the URL declarations for this Django
 
 Within the project directory, *wsgi.py* has the configuration information for the WSGI-compatible web servers that will serve the Django project.
 
-
-
-
 ## Introducing the Django App Server layer
 
 The Django App Server layer is an AWS OpsWorks layer that will provide a blueprint for instances that function as Django application servers. It is based on python, pip, and virtualenv. 
@@ -99,6 +98,8 @@ The Django App Server layer is an AWS OpsWorks layer that will provide a bluepri
 *Note*: When you choose a location for your Django source, don't drop it in your web server's document root. Django is separate from your web server and you don't want to expose the underlying code.
 
 ## Walkthrough
+
+Now that we've set the context of what we are doing, let's take a look at this sample cookbook and walkthrough the process of using it.
 
 ### Prerequisites and Assumptions
 
@@ -118,7 +119,19 @@ If you do not have the AWS environment minimal requirements, check out the proce
 
 ### 
 
+SERVICE_ROLE_ARN=$(aws opsworks describe-stacks --query 'Stacks[*].ServiceRoleArn' --output text |awk '{ print $1 }')
+
+
+DEFAULT_INSTANCE_PROFILE_ARN=$(aws opsworks describe-stacks --query 'Stacks[*].DefaultInstanceProfileArn' --output text |awk '{ print $1 }')
+
+STACK_ID=$(aws opsworks --region us-east-1 create-stack --name chef-12 --service-role-arn $SERVICE_ROLE_ARN --default-instance-profile-arn $DEFAULT_INSTANCE_PROFILE_ARN --configuration-manager Name=Chef,Version=12 --stack-region us-west-2 --output text)
+LAYER_ID=$(aws opsworks --region us-east-1 create-layer --stack-id $STACK_ID --type custom --name kustom --shortname kustom --output text)
+INSTANCE_ID=$(aws opsworks --region us-east-1 create-instance --stack-id $STACK_ID --layer-id $LAYER_ID --instance-type c3.large --output text)
+aws opsworks --region us-east-1 start-instance --instance-id $INSTANCE_ID
+
+
 ## Further Resources
 
+* [AWS CLI](https://aws.amazon.com/cli/)
 * [AWS OpsWorks Lifecycle Events](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html)
 * [Green Unicorn](http://gunicorn.org/)
