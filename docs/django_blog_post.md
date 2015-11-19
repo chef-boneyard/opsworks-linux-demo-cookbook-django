@@ -57,11 +57,13 @@ In Django, [the view pattern is implemented through an abstraction called a  tem
 
 ### Django Installation Requirements
 
-There are core applications required to install [Django](https://docs.djangoproject.com): Python, pip, and virtualenv. You have a number of choices that may change how you want to deploy within your environment, for example what version of Python you are using as a standard within your organization. Before you run something in production, you should always understand the implications of what you are doing, and why. 
+There are core applications required to install [Django](https://docs.djangoproject.com): Python, a package management system like pip, and optionally virtualenv, a way to isolate your python environments. You have a number of choices that may change how you want to deploy within your environment, for example what version of Python you are using as a standard within your organization. Before you run something in production, you should always understand the implications of what you are doing, and why. 
+
+Understanding the requirements of our application help us decide on how we will approach automating the installation. It also helps us in understanding whether a community cookbook serves our needs, what customizations we might need, and the overall effort of those customizations.
 
 ### Django Deployment Requirements 
 
-In order for Django to be useful, you also need a few other applications: WSGI-compatible web server, and a database application.
+In order for Django to be useful, you also need a few additional applications: WSGI-compatible web server, and a database application.
 
 The Web Server Gateway Interface (WSGI) is a specification for a simple and universal interface between a web server and web application for Python, in other words the communication strategy. The goal is that any application written to the spec will run on any server that also complies to the spec.
 
@@ -87,15 +89,25 @@ Within the project directory, *urls.py* has the URL declarations for this Django
 
 Within the project directory, *wsgi.py* has the configuration information for the WSGI-compatible web servers that will serve the Django project.
 
+## Introducing the Chef Community Supermarket
+
+The hosted [Chef Supermarket](http://supermarket.chef.io) is the location to find community shared cookbooks. Some of these cookbooks are maintained by my team, the Community Engineering team, others are maintained by individuals in the community.
+
+In our example cookbook, we will be using the [application_python](https://supermarket.chef.io/cookbooks/application_python) cookbook to manage our Django app. We could custom create a cookbook, but for the purpose of this how-to this cookbook is sufficient.
+
+The Supermarket interface gives us quite a bit of information about this cookbook. It shows the README which has information about quickly getting started, requirements, and dependencies. We can go directly to the source code, or [download the cookbook](https://supermarket.chef.io/cookbooks/application_python/download) direct from the Supermarket.
+
+A key requirement to note is that **Chef 12** or later are required. Make sure that if you modify the instructions in this how-to that at minimum you use Chef 12. 
+
 ## Introducing the Django App Server layer
 
 The Django App Server layer is an AWS OpsWorks layer that will provide a blueprint for instances that function as Django application servers. It is based on python, pip, and virtualenv. 
  
 ### Using the Django App Server layer
 
-*Note*: Make sure that you do not use the app name of *test* or *django* as these names will cause conflicts with Python or Django.
+**Note**: Make sure that you do not use the app name of *test* or *django* as these names will cause conflicts with Python or Django.
 
-*Note*: When you choose a location for your Django source, don't drop it in your web server's document root. Django is separate from your web server and you don't want to expose the underlying code.
+**Note**: When you choose a location for your Django source, don't drop it in your web server's document root. Django is separate from your web server and you don't want to expose the underlying code.
 
 ## Walkthrough
 
@@ -106,19 +118,19 @@ Now that we've set the context of what we are doing, let's take a look at this s
 For the purposes of this walkthrough, we assume that you have the following setup on your working environment:
 
 * git (or some mechanism to access and download the sample repo)
-* Chef Development Kit (chefdk)
-* Vagrant 
+* [Chef Development Kit (chefdk)]()
+* [Vagrant]() 
 
 We also assume that in your AWS environment that you have:
 
 * Signed up for an AWS account
-* Availability of an IAM User
-* Service Access Permissions with your IAM user
-* [AWS Command Line Tool(AWS CLI)](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) installed
+* IAM User credentials
+* Service Access Permissions enabled on your IAM user
+* [AWS Command Line Tool(AWS CLI)](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) installed on your workstation.
 
 If you do not have the AWS environment minimal requirements, check out the process here to get this setup. 
 
-You don't have to use the AWS CLI, just take the process and apply it to the GUI in the AWS console.  
+If you don't have the AWS CLI or the ability to install it, just take the process and apply it to the GUI in the AWS console.  
 
 ### 
 
@@ -151,6 +163,7 @@ ssh ec2-user@IPADDRESS -i SSH\_KEY\_PAIR.pem
 
 ## Further Resources
 
+* [Chef Supermarket](http://supermarket.chef.io)
 * [AWS CLI](https://aws.amazon.com/cli/)
 * [AWS OpsWorks Lifecycle Events](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html)
 * [Green Unicorn](http://gunicorn.org/)
