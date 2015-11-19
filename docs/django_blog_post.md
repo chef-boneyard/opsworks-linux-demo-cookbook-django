@@ -6,16 +6,15 @@ Django is a free and open source web application framework written in Python.
 
 The great thing about chef community cookbooks, is that you can reuse what makes sense for you, and create more specific cookbooks and recipes within your environment.
 
-
-
-
 ## Basics
 
-Before we get too much further, we'll talk about the basic vocabulary involved with managing applications on OpsWorks.
+Before we get too much further, we'll talk about the basic vocabulary involved with managing applications with Chef and OpsWorks.
 
 ### Chef Basics
 
-Within Chef, we have the concepts of _resources_, _recipes_, and _cookbooks_. Resources are the basic building blocks of our infrastructure. We can use resources as provided by core chef, pull resources in from community cookbooks or we can extend and customize our own resources. 
+Within Chef, we have the concepts of _resources_, _recipes_, and _cookbooks_. 
+
+Resources are the basic building blocks of our infrastructure. We can use resources as provided by core chef, pull resources in from community cookbooks or we can extend and customize our own resources. 
 
 Recipes are the algorithm to describe a specific piece of an application that we want to have running on a system. It's the ordered set of resources and potentially additional ruby code for logic and flow control. Just as with a recipe for baking chocolate chip cookies or oatmeal cookies, the recipe will be specific to what we want to create. 
 
@@ -25,13 +24,13 @@ Cookbooks are where we collect all of our recipes, and other supporting files. W
 
 As we needed to have a common understanding of terminology before working with Chef abstractions, we need to understand the common understanding of terminology with Opsworks abstractions. There are 5 key OpsWorks abstractions: _apps_, _instances_, _layers_, _lifecycle events_, and _stacks_.
 
-An AWS OpsWorks app represents code that you want to run on an application server. Code is stored in source control in git, or as a bundle on AWS S3 or as an http archive. 
+An *AWS OpsWorks app* represents code that you want to run on an application server. Code is stored in source control in git, or as a bundle on AWS S3 or as an http archive. 
 
-An AWS OpsWorks instance represents a computing resource, such as an Amazon EC2 instance. 
+An *AWS OpsWorks* instance represents a computing resource, such as an Amazon EC2 instance. 
 
-An AWS OpsWorks layer is a blueprint that describes a set of one or more instances. The layer defines the packages that are installed and configurations.  Instances can belong to multiple layers, as long as the layers don't have overlapping configurations.
+An *AWS OpsWorks layer* is a blueprint that describes a set of one or more instances. The layer defines the packages that are installed and configurations.  Instances can belong to multiple layers, as long as the layers don't have overlapping configurations.
 
-An AWS OpsWorks stack is the top-level AWS OpsWorks entity. Each stack will contain one or more layers which each contain instances. As a whole, the stack represents a set of instances that you want to manage collectively. An example of a web application stack might look something like:
+An *AWS OpsWorks stack* is the top-level AWS OpsWorks entity. Each stack will contain one or more layers which each contain instances. As a whole, the stack represents a set of instances that you want to manage collectively. An example of a web application stack might look something like:
 
 * A set of application server instances.
 * A load balancer instance which takes incoming traffic and distributes it across the application servers.
@@ -39,9 +38,7 @@ An AWS OpsWorks stack is the top-level AWS OpsWorks entity. Each stack will cont
 
 A common practice is to have multiple stacks that represent different environments. A typical set of stacks might consist of a development, staging, and production stacks. 
 
-### Chef with OpsWorks
-
-At each layer there will be a set of recipes associated and run at 
+An *AWS OpsWorks lifecycle event* is one of a set of 5 events that can occur with an *AWS OpsWorks layer*: Setup, Configure, Deploy, Undeploy, and Shutdown.At each layer there will be a set of recipes associated and run when the [lifecycle event](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html) is triggered. 
 
 
 ### Django Terminology
@@ -103,4 +100,5 @@ The Django App Server layer is an AWS OpsWorks layer that will provide a bluepri
 
 ## Further Resources
 
+* [AWS OpsWorks Lifecycle Events](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html)
 * [Green Unicorn](http://gunicorn.org/)
