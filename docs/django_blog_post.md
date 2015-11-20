@@ -166,7 +166,7 @@ Remember, that the **AWS OpsWorks stack** is the top-level AWS OpsWorks entity t
    5. Click on custom Chef cookbooks Yes.
    6. Fill in the custom Chef cookbooks form with the following information:
       * Repository type Git
-      * Repository URL https://s3.amazonaws.com/test-demo-django/opsworks-linux-demo-cookbook-django.tar.gz
+      * Repository URL https://s3.amazonaws.com/chef-django-opswork-test/opsworks-linux-demo-cookbook-django.tar.gz
    7. Click on Advanced to get further options.
    8. Fill in the Advanced form as follows.
       * OpsWorks Agent version "Use latest version"
@@ -218,25 +218,36 @@ Examine the layer you just created.
 aws opsworks describe-layers --layer-ids $LAYER_ID
 ```
 
+
+### Add an App
+
+    1. In the service navigation pane, choose Apps, as displayed in the following screenshot:
+    2. The Apps page displays. Choose Add an app. The Add App page displays.
+    3. For Settings, for Name, type DjangoDemoApp. 
+    4. For Application Source, for Repository URL, type
+    https://github.com/bartTC/dpaste.git
+
+
+
 ### Add an Instance to your Layer
 
 Add a ```c3.large``` instance to our Layer.
 
 ```
-INSTANCE_ID=$(aws opsworks  create-instance --stack-id $STACK_ID --layer-id $LAYER_ID --instance-type c3.large --output text)
+    INSTANCE_ID=$(aws opsworks  create-instance --stack-id $STACK_ID --layer-id $LAYER_ID --instance-type c3.large --output text)
 
 ```
 
 Start our instance.
 
 ```
-aws opsworks start-instance --instance-id $INSTANCE_ID
+    aws opsworks start-instance --instance-id $INSTANCE_ID
 ```
 
 Examine our instance.
 
 ```
-aws opsworks describe-instances --instance-ids $INSTANCE_ID
+    aws opsworks describe-instances --instance-ids $INSTANCE_ID
 ```
 
 It will take a few minutes for the instance to finish spinning up, so be patient.  Status will progress from **stopped** to **requested**, to **pending**, to **booting**, to **running_setup**, and then finally to **online**. 
@@ -248,10 +259,7 @@ Obtain the IP Address of the instance that was just created.
 ```
 
 IPADDRESS=$(aws opsworks describe-instances --instance-ids $INSTANCE_ID --query 'Instances[*].PublicIp' --output text)
-```
 
-```
-ssh ec2-user@IPADDRESS -i SSH_KEY_PAIR.pem 
 ```
 
 Now that you have created a functioning stack, layer, and instances, you can create additional stacks using the AWS CLI. You just need the ``ServiceRoleArn`` and the ``DefaultInstanceProfileArn`` which we obtained earlier in this how-to post.
@@ -261,6 +269,9 @@ The command looks like this:
 ```
 STACK_ID=$(aws opsworks create-stack --name STACK_NAME --service-role-arn $SERVICE_ROLE_ARN --default-instance-profile-arn $DEFAULT
 ```
+
+
+
 
 ### Cleanup
 
