@@ -44,3 +44,6 @@ vendor/
 .vagrant/
 .vagrant.d/
 .kitchen/
+
+# mac stuff
+.DS_Store
