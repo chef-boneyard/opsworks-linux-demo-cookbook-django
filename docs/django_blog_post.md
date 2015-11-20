@@ -1,8 +1,10 @@
 # Using Chef Community Cookbooks with AWS OpsWorks Chef 12 
 
-With the release of AWS OpsWorks Chef 12 for Linux, namespace conflicts have been resolved between OpsWorks cookbooks and Chef community cookbooks allowing people to use community cookbooks in their OpsWorks infrastructure. Chef is working closely with OpsWorks to integrate both products and remove the friction between workflows with either product.  Opsworks Chef 12 for Linux takes us one step closer by enabling the use of any community cookbooks.
+AWS OpsWorks is an application management service that makes it easy to deploy and operate applications of all shapes and sizes.  OpsWorks supports Chef recipes for automating these services. 
 
-In this post, I will walk through the process of using community cookbooks with OpsWorks. We'll use community cookbooks and ``dpaste``, an open source project that stores text snippets using Django, a free and open source web application framework written in Python. 
+With the release of OpsWorks Chef 12 for Linux, namespace conflicts have been resolved between OpsWorks cookbooks and Chef community cookbooks allowing people to use community cookbooks in their OpsWorks infrastructure. Chef is working closely with OpsWorks to integrate both products and remove the friction between workflows with either product.  Opsworks Chef 12 for Linux takes us one step closer by enabling the use of any community cookbooks.
+
+This post will walk through the process of using OpsWorks and Chef to create a simple web application using Django. We'll use community cookbooks and ``dpaste``, an open source project that stores text snippets using Django, a free and open source web application framework written in Python. 
 
 This isn't an in-depth guide for Python, Django, Chef, or OpsWorks; while I'll point out some key components to think about with a working example, prior to deploying to your environment you should ensure that you think through your specific concerns. I look forward to hearing your feedback and any modifications that you test out.  
 
