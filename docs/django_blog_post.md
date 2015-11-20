@@ -1,26 +1,27 @@
-# Using Chef Community Cookbooks with AWS OpsWorks Chef 12 
+# Using Chef Community Cookbooks with AWS OpsWorks Chef 12
 
-AWS OpsWorks is an application management service that makes it easy to deploy and operate applications of all shapes and sizes.  OpsWorks supports Chef recipes for automating these services. 
+AWS OpsWorks is an application management service that makes it easy to deploy and operate applications of all shapes and sizes.  OpsWorks supports Chef recipes for automating these services.
 
 With the release of OpsWorks Chef 12 for Linux, namespace conflicts have been resolved between OpsWorks cookbooks and Chef community cookbooks allowing people to use community cookbooks in their OpsWorks infrastructure. Chef is working closely with OpsWorks to integrate both products and remove the friction between workflows with either product.  Opsworks Chef 12 for Linux takes us one step closer by enabling the use of any community cookbooks.
 
-This post will walk through the process of using OpsWorks and Chef to create a simple web application using Django. We'll use community cookbooks and ``dpaste``, an open source project that stores text snippets using Django, a free and open source web application framework written in Python. 
+This post will walk through the process of using OpsWorks and Chef to create a simple web application using Django. We'll use community cookbooks and ``dpaste``, an open source project that stores text snippets using Django, a free and open source web application framework written in Python.
 
 This isn't an in-depth guide for Python, Django, Chef, or OpsWorks; while I'll point out some key components to think about with a working example, prior to deploying to your environment you should ensure that you think through your specific concerns. I look forward to hearing your feedback and any modifications that you test out.  
 
 ## Background
 
-Before we get too much further, let's establish a common understanding so that we can bridge the cultures between these different technologies, Chef and OpsWorks. 
+Before we get too much further, let's establish a common understanding so that we can bridge the cultures between these different technologies, Chef and OpsWorks.
 
 ### Chef Basics
 
-Within Chef, we have the concepts of _resources_, _recipes_, and _cookbooks_. 
+Within Chef, we have the concepts of _resources_, _recipes_, and _cookbooks_.
 
-**Resources** are the basic building blocks of our infrastructure. We can use resources as provided by core chef, pull resources in from community cookbooks, or we can extend and customize our own resources. 
 
-**Recipes** are the description a specific piece of an application that we want to have running on a system. It's the ordered set of resources and potentially additional code for logic and flow control. Just as with a recipe for baking chocolate chip cookies or oatmeal cookies, the recipe will be specific to what we want to create. 
+**Resources** are the basic building blocks of our infrastructure. We can use resources as provided by core chef, pull resources in from community cookbooks, or we can extend and customize our own resources.
 
-**Cookbooks** re a collection of recipes and other supporting files. One of the supporting files is the ``metadata.rb`` file that specifies the cookbook's version number. We can create our own cookbooks or pull from the community cookbook repository, the Supermarket.
+**Recipes** are the description a specific piece of an application that we want to have running on a system. It's the ordered set of resources and potentially additional code for logic and flow control. Just as with a recipe for baking chocolate chip cookies or oatmeal cookies, the recipe will be specific to what we want to create.
+
+**Cookbooks** are a collection of recipes and other supporting files. One of the supporting files is the ``metadata.rb`` file that specifies the cookbook's version number. We can create our own cookbooks or pull from the community cookbook repository, the Supermarket.
 
 One great thing about chef community cookbooks is that you can reuse what makes sense for you, and create more specific cookbooks and recipes within your environment.
 
@@ -28,9 +29,9 @@ One great thing about chef community cookbooks is that you can reuse what makes 
 
 As we needed to have a common understanding of terminology before working with Chef abstractions, we need to understand the common understanding of terminology with Opsworks abstractions. There are 5 key OpsWorks abstractions: _apps_, _instances_, _layers_, _lifecycle events_, and _stacks_.
 
-An **app** represents code that you want to run on an application server. Code is stored in source control in git, or as a bundle on AWS S3 or as an http archive. 
+An **app** represents code that you want to run on an application server. Code is stored in source control in git, or as a bundle on AWS S3 or as an http archive.
 
-An **instance** represents a computing resource, such as an Amazon EC2 instance. 
+An **instance** represents a computing resource, such as an Amazon EC2 instance.
 
 A **layer** is a blueprint that describes a set of one or more instances. The layer defines the packages that are installed and configurations.  Instances can belong to multiple layers, as long as the layers don't have overlapping configurations.
 
@@ -40,9 +41,9 @@ A **stack** is the top-level AWS OpsWorks entity. Each stack will contain one or
 * A load balancer instance which takes incoming traffic and distributes it across the application servers.
 * A database instance, which serves as a back-end data store for the application servers.
 
-A common practice is to have multiple stacks that represent different environments. A typical set of stacks might consist of a development, staging, and production stacks. 
+A common practice is to have multiple stacks that represent different environments. A typical set of stacks might consist of a development, staging, and production stacks.
 
-A **lifecycle event** is one of a set of 5 events that can occur with a *layer*: Setup, Configure, Deploy, Undeploy, and Shutdown. At each layer there will be a set of recipes associated and run when the [lifecycle event](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html) is triggered. 
+A **lifecycle event** is one of a set of 5 events that can occur with a *layer*: Setup, Configure, Deploy, Undeploy, and Shutdown. At each layer there will be a set of recipes associated and run when the [lifecycle event](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html) is triggered.
 
 ## Problem Space
 
@@ -50,19 +51,19 @@ We want to deploy ``dpaste``, an open source project that stores text snippets. 
 
 ### Django Installation Requirements
 
-There are core applications required to install [Django](https://docs.djangoproject.com): Python, a package management system like pip, and optionally **virtualenv**, a way to isolate your python environments. You have a number of choices that may change how you want to deploy within your environment, for example what version of Python you are using as a standard within your organization. Before you run something in production, you should always understand the implications of what you are doing, and why. 
+There are core applications required to install [Django](https://docs.djangoproject.com): Python, a package management system like pip, and optionally **virtualenv**, a way to isolate your python environments. You have a number of choices that may change how you want to deploy within your environment, for example what version of Python you are using as a standard within your organization. Before you run something in production, you should always understand the implications of what you are doing, and why.
 
 Understanding the requirements of our application help us decide on how we will approach automating the installation. It also helps us in understanding whether a community cookbook serves our needs, what customizations we might need, and the overall effort of those customizations.
 
-### Django Deployment Requirements 
+### Django Deployment Requirements
 
 In order for Django to be useful, you also need a few additional applications: WSGI-compatible web server, and a database application.
 
 The **Web Server Gateway Interface (WSGI)** is a specification for a simple and universal interface between a web server and web application for Python, in other words the communication strategy. The goal is that any application written to the spec will run on any server that also complies to the spec.
 
-A WSGI-compatible web server will receive client requests and pass them to the underlying WSGI-compatible web application. It will also receive responses from the web application and return them to the client. 
+A WSGI-compatible web server will receive client requests and pass them to the underlying WSGI-compatible web application. It will also receive responses from the web application and return them to the client.
 
-**Note**: In this how-to post, we are deploying a Django app, ``dpaste`` from code straight off of github ``https://github.com/bartTC/dpaste``. In general you shouldn't do this, as you should validate the software that you are installing does what you want it to do. For the purpose of understanding the concepts in this post, it works. 
+**Note**: In this how-to post, we are deploying a Django app, ``dpaste`` from code straight off of github ``https://github.com/bartTC/dpaste``. In general you shouldn't do this, as you should validate the software that you are installing does what you want it to do. For the purpose of understanding the concepts in this post, it works.
 
 dpaste is a Django based pastebin. From the [installation instructions](http://dpaste.readthedocs.org/en/latest/installation.html), we know that we need to do the following things to get dpaste running:
 
@@ -73,17 +74,17 @@ dpaste is a Django based pastebin. From the [installation instructions](http://d
 * Propagate models to the database schema.
 * Start up a web server.
 
-In this how-to, we will use **gunicorn**, a lightweight Python WSGI HTTP server. 
+In this how-to, we will use **gunicorn**, a lightweight Python WSGI HTTP server.
 
 ## Introducing the Chef Community Supermarket
 
-The hosted [Chef Supermarket](http://supermarket.chef.io) is the location to find community shared cookbooks. Some of these cookbooks are maintained by my team, the Community Engineering team, others are maintained by individuals in the community.
+The [Chef Supermarket](http://supermarket.chef.io) is the location to find cookbooks shared by and with the community. Some of these cookbooks are maintained by my team, the Chef Community Engineering team, others are maintained by individuals in the community.
 
 In our example cookbook, we will be using the [application_python](https://supermarket.chef.io/cookbooks/application_python) cookbook to manage our Django app. We could custom create a cookbook, but for the purpose of this how-to this cookbook is sufficient.
 
 The Supermarket interface gives us quite a bit of information about this cookbook. It shows the README which has information about quickly getting started, requirements, and dependencies. We can go directly to the source code, or [download the cookbook](https://supermarket.chef.io/cookbooks/application_python/download) direct from the Supermarket.
 
-A key requirement to note is that **Chef 12** or later is required. Make sure that if you modify the instructions in this how-to that at minimum you use Chef 12. 
+A key requirement to note is that **Chef 12** or later is required. Make sure that if you modify the instructions in this how-to that at minimum you use Chef 12.
 
 ## Download the Cookbook from the Supermarket
 
@@ -102,7 +103,7 @@ package 'git' do
 end
 ```
 
-Next, we are using the ``application`` resource. 
+Next, we are using the ``application`` resource.
 
 ```
 application app_path do
@@ -134,17 +135,17 @@ Next, within the ``application`` resource, we are defining additional parameters
   virtualenv
 ```
 
-Next, within the ``application`` resource, we have the parameter ``pip_requirements``. This parameter makes sure that ``pip install -r requirements.txt`` is run. This is a python standard to install python packages within the virtualenv based off of a ``requirements.txt`` file.[2][] 
+Next, within the ``application`` resource, we have the parameter ``pip_requirements``. This parameter makes sure that ``pip install -r requirements.txt`` is run. This is a python standard to install python packages within the virtualenv based off of a ``requirements.txt`` file.[2][]
 
-For our application, this requirements.txt file is coming from our source code ``https://github.com/bartTC/dpaste/blob/master/requirements.txt``. 
+For our application, this requirements.txt file is coming from our source code ``https://github.com/bartTC/dpaste/blob/master/requirements.txt``.
 
 ```
   pip_requirements
 ```
 
-Next, we add additional configuration information to the ``dpaste/settings/deploy.py`` file. 
+Next, we add additional configuration information to the ``dpaste/settings/deploy.py`` file.
 
-TODO -- need to fix the path here, as it's incorrect within the scope of opsworks. probably should just say the app name is dpaste to eliminate the troubles here. 
+TODO -- need to fix the path here, as it's incorrect within the scope of opsworks. probably should just say the app name is dpaste to eliminate the troubles here.
 
 ```
   file ::File.join(path, 'dpaste', 'settings', 'deploy.py') do
@@ -155,9 +156,9 @@ TODO -- need to fix the path here, as it's incorrect within the scope of opswork
 
 Next within the ``application`` resource, we specify the ``django`` parameter. This is a very detailed parameter with a lot going on. Within this block we:
 
-* configure Django to be installed, 
-* allow connections to Django from localhost only, 
-* add the Dpaste application to the 
+* configure Django to be installed,
+* allow connections to Django from localhost only,
+* add the Dpaste application to the
 * configure the Django Object Relational Mapping(ORM) to use a local SQLite database,
 * sync our models to our database,
 * propagate changes to our models to our database schema.
@@ -173,18 +174,18 @@ Next within the ``application`` resource, we specify the ``django`` parameter. T
 
 ```
 
-Finally, within our ``application`` resource, we set up the required WSGI-compatible web server, **gunicorn**, a lightweight Python WSGI HTTP server. 
+Finally, within our ``application`` resource, we set up the required WSGI-compatible web server, **gunicorn**, a lightweight Python WSGI HTTP server.
 
 ```
   gunicorn
 
 ```
 
-Without any additional configuration, we are accepting the default, which will have gunicorn running on port 80. 
+Without any additional configuration, we are accepting the default, which will have gunicorn running on port 80.
 
 ## Bundling up the Cookbook for OpsWorks
 
-Identify your artifactory store. OpsWorks can work with either HTTP or S3. 
+Identify your artifactory store. OpsWorks can work with either HTTP or S3.
 
 Using S3 is pretty simple. Create the bucket where you will store the cookbooks.
 
@@ -205,7 +206,7 @@ aws s3 ls s3://YOURBUCKET
 
 ## Introducing the Django App Server layer
 
-The Django App Server layer is an AWS OpsWorks layer that will provide a blueprint for instances that function as Django application servers. 
+The Django App Server layer is an AWS OpsWorks layer that will provide a blueprint for instances that function as Django application servers.
 
 ### Creating the Django App Server layer
 
@@ -224,14 +225,14 @@ For the purposes of this part of the walkthrough, we assume that you have the fo
 * Service Access Permissions enabled on your IAM user
 * [AWS Command Line Tool(AWS CLI)](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) installed on your workstation.
 
-If you do not have the AWS environment minimal requirements, check out the process here to get this setup. 
+If you do not have the AWS environment minimal requirements, check out the process here to get this setup.
 
 If you don't have the AWS CLI or the ability to install it, just take the process and apply it to the GUI in the AWS console.  
 
 ### Local AWS Configuration
 
 When using the AWS CLI, it's helpful to have a local AWS configuration.
-If you don't already have an AWS configuration, go ahead and create one to simplify your AWS CLI commands. 
+If you don't already have an AWS configuration, go ahead and create one to simplify your AWS CLI commands.
 
 Add the following to ``~/.aws/config``, making sure to paste in your ``aws_access_key_id`` and ``aws_secret_access_key`` values. Don't leave these blank! :
 
@@ -246,9 +247,9 @@ aws_secret_access_key =
 
 ### Create your First Stack
 
-**Note**: The AWS OpsWorks CLI endpoint, ``opsworks.us-east-1.amazonaws.com``,  is only available in region *us-east-1*. This region specification is separate from the stack's region configuration. 
+**Note**: The AWS OpsWorks CLI endpoint, ``opsworks.us-east-1.amazonaws.com``,  is only available in region *us-east-1*. This region specification is separate from the stack's region configuration.
 
-**Note**: The OpsWorks CLI configuration variable for the Chef version is ``ConfigurationManager``. Make sure that you are specifying at minimum Chef Version 12. 
+**Note**: The OpsWorks CLI configuration variable for the Chef version is ``ConfigurationManager``. Make sure that you are specifying at minimum Chef Version 12.
 
 Amazon Resource Names(ARNs) uniquely identify resources on AWS. To work with AWS OpsWorks, we need to obtain the **ServiceRoleArn** ARN. To do this, we will first need to create a stack, and then get the **ServiceRoleArn**.
 
@@ -266,14 +267,14 @@ Remember, that the **stack** is the top-level OpsWorks entity that will contain 
       * Default operating system **Linux Red Hat Enterprise 7**
    5. Click on custom Chef cookbooks **Yes**.
    6. Fill in the custom Chef cookbooks form with the following information:
-      * Repository type 
-      * Repository URL 
+      * Repository type
+      * Repository URL
    7. Click on Advanced to get further options.
    8. Fill in the Advanced form as follows.
       * OpsWorks Agent version "Use latest version"
    9. Click on Add Stack.
 
-The following commands assume an AWS configuration that has been set with the region information as **us-east-1**. If you can't set this in your configuration you will need to add a flag ``--region us-east-1`` to each of these commands. 
+The following commands assume an AWS configuration that has been set with the region information as **us-east-1**. If you can't set this in your configuration you will need to add a flag ``--region us-east-1`` to each of these commands.
 
 Verify that you can see your newly created stack by using the AWS CLI.
 
@@ -287,7 +288,7 @@ Set up an environmental variable of ``SERVICE_ROLE_ARN``:
 SERVICE_ROLE_ARN=$(aws opsworks describe-stacks --query 'Stacks[*].ServiceRoleArn' --output text |awk '{ print $1 }')
 ```
 
-In this command, we are using the AWS OpsWorks CLI *describe-stacks* command to pull information about the stacks, pulling out just the ServiceRoleArn in order to use it later. 
+In this command, we are using the AWS OpsWorks CLI *describe-stacks* command to pull information about the stacks, pulling out just the ServiceRoleArn in order to use it later.
 
 Set up an environmental variable of ``DEFAULT_INSTANCE_PROFILEs_ARN``:
 
@@ -324,7 +325,7 @@ aws opsworks describe-layers --layer-ids $LAYER_ID
 
     1. In the service navigation pane, choose Apps, as displayed in the following screenshot:
     2. The Apps page displays. Choose Add an app. The Add App page displays.
-    3. For Settings, for Name, type dpaste. 
+    3. For Settings, for Name, type dpaste.
     4. For Application Source, for Repository URL, type
     https://github.com/bartTC/dpaste.git
 
@@ -351,7 +352,7 @@ Examine our instance.
     aws opsworks describe-instances --instance-ids $INSTANCE_ID
 ```
 
-It will take a few minutes for the instance to finish spinning up, so be patient.  Status will progress from **stopped** to **requested**, to **pending**, to **booting**, to **running_setup**, and then finally to **online**. 
+It will take a few minutes for the instance to finish spinning up, so be patient.  Status will progress from **stopped** to **requested**, to **pending**, to **booting**, to **running_setup**, and then finally to **online**.
 
 After **Status** changes to **online**, **setting up** changes from **1** to **0**, online changes from **0** to **1**.
 
@@ -370,9 +371,6 @@ The command looks like this:
 ```
 STACK_ID=$(aws opsworks create-stack --name STACK_NAME --service-role-arn $SERVICE_ROLE_ARN --default-instance-profile-arn $DEFAULT
 ```
-
-
-
 ### Cleanup
 
 stop-instance
@@ -395,7 +393,7 @@ delete-stack
 
 
 * [Chef Supermarket](http://supermarket.chef.io)
-* [Vagrant](https://www.vagrantup.com/) 
+* [Vagrant](https://www.vagrantup.com/)
 * [AWS CLI](https://aws.amazon.com/cli/)
 * [AWS OpsWorks Lifecycle Events](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html)
 * [Green Unicorn](http://gunicorn.org/)
