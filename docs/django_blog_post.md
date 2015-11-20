@@ -223,7 +223,7 @@ aws opsworks describe-layers --layer-ids $LAYER_ID
 
     1. In the service navigation pane, choose Apps, as displayed in the following screenshot:
     2. The Apps page displays. Choose Add an app. The Add App page displays.
-    3. For Settings, for Name, type DjangoDemoApp. 
+    3. For Settings, for Name, type dpaste. 
     4. For Application Source, for Repository URL, type
     https://github.com/bartTC/dpaste.git
 
@@ -270,6 +270,100 @@ The command looks like this:
 STACK_ID=$(aws opsworks create-stack --name STACK_NAME --service-role-arn $SERVICE_ROLE_ARN --default-instance-profile-arn $DEFAULT
 ```
 
+### Examining our recipe
+
+Within our default recipe, we are using the ``package`` resource to install ``git`` on our node.
+
+```
+package 'git' do
+  options '--force-yes' if node['platform'] == 'ubuntu' && node['platform_version'] == '14.04'
+end
+```
+
+Next, we are using the ``application`` resource. 
+
+```
+application app_path do
+ ...
+end
+```
+
+``app_path`` is a ruby variable that we have defined at the top of our recipe based off of the ``AWS OpsWork App`` name that we created earlier.
+
+```
+app = search(:aws_opsworks_app).first
+app_path = "/srv/#{app['shortname']}"
+```
+
+Within the ``application`` resource we are defining a ``git`` parameter.
+
+```
+git app_path do
+  repository app['app_source']['url']
+  action :sync
+end
+```
+This ``git`` parameter is based off of the value that we set for the ``AWS OpsWork App`` Application Source Repository URL value earlier, i.e. ``https://github.com/bartTC/dpaste.git``.
+
+Next, within the ``application`` resource, we are defining additional parameters. Here is where we customize based on our requirements. For this guide, we are using the latest python 2 and configuring a virtualenv for our environment based off of the application name.
+
+```  
+  python '2'
+  virtualenv
+```
+
+Next, within the ``application`` resource, we have the parameter ``pip_requirements``. This parameter makes sure that ``pip install -r requirements.txt`` is run. This is a python standard to install python packages within the virtualenv based off of a ``requirements.txt`` file.[2][] 
+
+For our application, this requirements.txt file is coming from our source code ``https://github.com/bartTC/dpaste/blob/master/requirements.txt``. 
+
+```
+  pip_requirements
+```
+
+Next, we add additional configuration information to the ``dpaste/settings/deploy.py`` file. 
+
+TODO -- need to fix the path here, as it's incorrect within the scope of opsworks. probably should just say the app name is dpaste to eliminate the troubles here. 
+
+```
+  file ::File.join(path, 'dpaste', 'settings', 'deploy.py') do
+    content "from dpaste.settings.base import *\nfrom dpaste.settings.local_settings import *\n"
+  end
+
+```
+
+Next within the ``application`` resource, we specify the ``django`` parameter. This is a very detailed parameter with a lot going on. Within this block we:
+
+* configure Django to be installed, 
+* allow connections to Django from localhost only, 
+* add the Dpaste application to the 
+* configure the Django Object Relational Mapping(ORM) to use a local SQLite database,
+* sync our models to our database,
+* propagate changes to our models to our database schema.
+
+```
+  django do
+    allowed_hosts ['localhost', node['fqdn']]
+    settings_module 'dpaste.settings.deploy'
+    database 'sqlite:///dpaste.db'
+    syncdb true
+    migrate true
+  end
+
+```
+
+Finally, within our ``application`` resource, we set up the required WSGI-compatible web server, **gunicorn**, a lightweight Python WSGI HTTP server. 
+
+```
+  gunicorn
+
+```
+
+Without any additional configuration, we are accepting the default, which will have gunicorn running on port 80. 
+
+### Summary
+
+
+
 
 
 
@@ -293,3 +387,4 @@ delete-stack
 * [Green Unicorn](http://gunicorn.org/)
 
 [1]: https://docs.djangoproject.com/en/1.8/faq/general/#django-appears-to-be-a-mvc-framework-but-you-call-the-controller-the-view-and-the-view-the-template-how-come-you-don-t-use-the-standard-names
+[2]: http://pip.readthedocs.org/en/stable/reference/pip_install/#overview
