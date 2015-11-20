@@ -1,16 +1,14 @@
-# Using Chef Community Cookbooks with AWS OpsWorks 
+# Using Chef Community Cookbooks with AWS OpsWorks Chef 12 
 
-In this post, I will walk through the process of using community cookbooks with AWS OpsWorks. We'll create a simple web application using Django. This isn't an in-depth guide; while I'll point out some key components to think about with a working example, prior to deploying to your environment you should ensure that you think through your specific concerns. I look forward to hearing your feedback and any modifications that you test out.  
+With the release of AWS OpsWorks Chef 12 for Linux, namespace conflicts have been resolved between OpsWorks cookbooks and Chef community cookbooks allowing people to use community cookbooks in their OpsWorks infrastructure. Chef is working closely with OpsWorks to integrate both products and remove the friction between workflows with either product.  Opsworks Chef 12 for Linux takes us one step closer by enabling the use of any community cookbooks.
+
+In this post, I will walk through the process of using community cookbooks with OpsWorks. We'll use community cookbooks and ``dpaste``, an open source project that stores text snippets using Django, a free and open source web application framework written in Python. 
+
+This isn't an in-depth guide for Python, Django, Chef, or OpsWorks; while I'll point out some key components to think about with a working example, prior to deploying to your environment you should ensure that you think through your specific concerns. I look forward to hearing your feedback and any modifications that you test out.  
 
 ## Background
 
-Web application frameworks provide a set of components that are common across applications allowing an individual to speed up development and deployment of a web application. Functionality like user authentication and authorization, forms, file management, are some examples of these common components. These frameworks exist to speed up delivery so that you don't have to reinvent the wheel each time you want to create a site. 
-
-Django is a free and open source web application framework written in Python. 
-
-## Basics
-
-Before we get too much further, we'll talk about the basic vocabulary involved with managing applications with Chef and OpsWorks.
+Before we get too much further, let's establish a common understanding so that we can bridge the cultures between these different technologies, Chef and OpsWorks. 
 
 ### Chef Basics
 
@@ -44,23 +42,15 @@ A common practice is to have multiple stacks that represent different environmen
 
 An *AWS OpsWorks lifecycle event* is one of a set of 5 events that can occur with an *AWS OpsWorks layer*: Setup, Configure, Deploy, Undeploy, and Shutdown.At each layer there will be a set of recipes associated and run when the [lifecycle event](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html) is triggered. 
 
-### Django Terminology
+## Problem Space
 
-Within Django an **app** is a Web application that does something, for example a poll app. Within Django a **project** is a collection of apps and configurations. An **app** can be in multiple projects.
-
-Django follows the MVC(Model View Controller) architectural pattern. In the MVC architectural pattern, the model handls all the data and business logic, the view presents data to the user in the supported format and layout, and the controller receives the requests (HTTP GET or POST for example), coordinates, and calls the appropriate resources to carry them out. 
-
-When creating a web application, we generally create a set of controllers, models, and views. The reason that it uses this pattern is to provide some separation between the presentation (what the user sees) and the application logic. 
-
-In Django, the view pattern is implemented through an abstraction called a  **template** and the controller pattern is implemented through an abstraction called a **view**.[1][1]. 
+We want to deploy ``dpaste``, an open source project that stores text snippets. It is a Django project so it requires Django to be installed on the system. Django is a free and open source web application framework written in Python.
 
 ### Django Installation Requirements
 
 There are core applications required to install [Django](https://docs.djangoproject.com): Python, a package management system like pip, and optionally **virtualenv**, a way to isolate your python environments. You have a number of choices that may change how you want to deploy within your environment, for example what version of Python you are using as a standard within your organization. Before you run something in production, you should always understand the implications of what you are doing, and why. 
 
 Understanding the requirements of our application help us decide on how we will approach automating the installation. It also helps us in understanding whether a community cookbook serves our needs, what customizations we might need, and the overall effort of those customizations.
-
-
 
 ### Django Deployment Requirements 
 
