@@ -16,11 +16,11 @@ Before we get too much further, let's establish a common understanding so that w
 
 Within Chef, we have the concepts of _resources_, _recipes_, and _cookbooks_. 
 
-Resources are the basic building blocks of our infrastructure. We can use resources as provided by core chef, pull resources in from community cookbooks or we can extend and customize our own resources. 
+**Resources** are the basic building blocks of our infrastructure. We can use resources as provided by core chef, pull resources in from community cookbooks, or we can extend and customize our own resources. 
 
-Recipes are the algorithm to describe a specific piece of an application that we want to have running on a system. It's the ordered set of resources and potentially additional ruby code for logic and flow control. Just as with a recipe for baking chocolate chip cookies or oatmeal cookies, the recipe will be specific to what we want to create. 
+**Recipes** are the description a specific piece of an application that we want to have running on a system. It's the ordered set of resources and potentially additional code for logic and flow control. Just as with a recipe for baking chocolate chip cookies or oatmeal cookies, the recipe will be specific to what we want to create. 
 
-Cookbooks are where we collect all of our recipes, and other supporting files. We can create our own or pull from the community cookbook repository, Supermarket. 
+**Cookbooks** re a collection of recipes and other supporting files. One of the supporting files is the ``metadata.rb`` file that specifies the cookbook's version number. We can create our own cookbooks or pull from the community cookbook repository, the Supermarket.
 
 One great thing about chef community cookbooks is that you can reuse what makes sense for you, and create more specific cookbooks and recipes within your environment.
 
