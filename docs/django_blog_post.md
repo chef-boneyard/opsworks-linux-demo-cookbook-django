@@ -83,7 +83,7 @@ In our example cookbook, we will be using the [application_python](https://super
 
 The Supermarket interface gives us quite a bit of information about this cookbook. It shows the README which has information about quickly getting started, requirements, and dependencies. We can go directly to the source code, or [download the cookbook](https://supermarket.chef.io/cookbooks/application_python/download) direct from the Supermarket.
 
-A key requirement to note is that **Chef 12** or later are required. Make sure that if you modify the instructions in this how-to that at minimum you use Chef 12. 
+A key requirement to note is that **Chef 12** or later is required. Make sure that if you modify the instructions in this how-to that at minimum you use Chef 12. 
 
 ## Introducing the Django App Server layer
 
