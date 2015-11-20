@@ -28,13 +28,13 @@ One great thing about chef community cookbooks is that you can reuse what makes 
 
 As we needed to have a common understanding of terminology before working with Chef abstractions, we need to understand the common understanding of terminology with Opsworks abstractions. There are 5 key OpsWorks abstractions: _apps_, _instances_, _layers_, _lifecycle events_, and _stacks_.
 
-An *AWS OpsWorks app* represents code that you want to run on an application server. Code is stored in source control in git, or as a bundle on AWS S3 or as an http archive. 
+An **AWS OpsWorks app** represents code that you want to run on an application server. Code is stored in source control in git, or as a bundle on AWS S3 or as an http archive. 
 
-An *AWS OpsWorks* instance represents a computing resource, such as an Amazon EC2 instance. 
+An **AWS OpsWorks instance** represents a computing resource, such as an Amazon EC2 instance. 
 
-An *AWS OpsWorks layer* is a blueprint that describes a set of one or more instances. The layer defines the packages that are installed and configurations.  Instances can belong to multiple layers, as long as the layers don't have overlapping configurations.
+An **AWS OpsWorks layer** is a blueprint that describes a set of one or more instances. The layer defines the packages that are installed and configurations.  Instances can belong to multiple layers, as long as the layers don't have overlapping configurations.
 
-An *AWS OpsWorks stack* is the top-level AWS OpsWorks entity. Each stack will contain one or more layers which each contain instances. As a whole, the stack represents a set of instances that you want to manage collectively. An example of a web application stack might look something like:
+An **AWS OpsWorks stack** is the top-level AWS OpsWorks entity. Each stack will contain one or more layers which each contain instances. As a whole, the stack represents a set of instances that you want to manage collectively. An example of a web application stack might look something like:
 
 * A set of application server instances.
 * A load balancer instance which takes incoming traffic and distributes it across the application servers.
@@ -117,9 +117,8 @@ Now that we've set the context of what we are doing, let's take a look at this s
 
 For the purposes of this walkthrough, we assume that you have the following setup on your working environment:
 
-* git (or some mechanism to access and download the sample repo)
-* [Chef Development Kit (chefdk)]()
-* [Vagrant]() 
+* [git (or some mechanism to access and download the sample repo)](https://git-scm.com/downloads)
+* [Chef Development Kit (chefdk)](https://downloads.chef.io/chef-dk/)
 
 We also assume that in your AWS environment that you have:
 
@@ -147,12 +146,13 @@ aws_secret_access_key =
 
 ### Create your First Stack
 
-*Note*: The AWS OpsWorks CLI endpoint, ``opsworks.us-east-1.amazonaws.com``,  is only available in region *us-east-1*. This region specification is separate from the stack's region configuration. 
+**Note**: The AWS OpsWorks CLI endpoint, ``opsworks.us-east-1.amazonaws.com``,  is only available in region *us-east-1*. This region specification is separate from the stack's region configuration. 
 
 **Note**: The AWS OpsWorks CLI configuration variable for the Chef Version is ``ConfigurationManager``. Make sure that you are specifying at minimum Chef Version 12. 
 
-
 Amazon Resource Names(ARNs) uniquely identify resources on AWS. To work with AWS OpsWorks, we need to obtain the **ServiceRoleArn** ARN. To do this, we will first need to create a stack, and then get the **ServiceRoleArn**.
+
+Remember, that the **AWS OpsWorks stack** is the top-level AWS OpsWorks entity that will contain our layers.
 
    1. Using your IAM user, sign in to the AWS OpsWorks console at https://console.aws.amazon.com/opsworks.
    2. Do one of the following:
@@ -197,14 +197,19 @@ DEFAULT_INSTANCE_PROFILEs_ARN=$(aws opsworks describe-stacks --query 'Stacks[*].
 
 In this command, we are using the AWS OpsWorks CLI *describe-stacks* command to pull information about the stacks, pulling out just  DefaultInstanceProfileArn.
 
-Obtain the StackId of the stack we just created. If you are already using opsworks, you'll need to determine this and set STACK_ID appropriately.
+Obtain the StackId of the stack we just created. If you are already using AWS OpsWorks and have existing stacks, you'll need to determine this and set STACK_ID appropriately.
 
 ```
 STACK_ID=$(aws opsworks describe-stacks --query 'Stacks[*].StackId' --output text)
 ```
 
+We have created an **AWS OpsWorks stack** called **DjangoTestStack** that will contain the layers that we will create next. As a whole, this stack will represent the set of instances that we want to manage collectively.
 
+### Create your First Layer
 
+Next we will create our first layer. 
+
+LAYER_ID=$(aws opsworks --region us-east-1 create-layer --stack-id $STACK_ID --type custom --name kustom --shortname kustom --output text)
 
 INSTANCE\_PROFILE_ARN --configuration-manager Name=Chef,Version=12 --stack-region us-west-2 --output text)
 LAYER_ID=$(aws opsworks --region us-east-1 create-layer --stack-id $STACK_ID --type custom --name kustom --shortname kustom --output text)
@@ -224,7 +229,9 @@ STACK_ID=$(aws opsworks create-stack --name STACK_NAME --service-role-arn $SERVI
 
 ## Further Resources
 
+
 * [Chef Supermarket](http://supermarket.chef.io)
+* [Vagrant](https://www.vagrantup.com/) 
 * [AWS CLI](https://aws.amazon.com/cli/)
 * [AWS OpsWorks Lifecycle Events](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html)
 * [Green Unicorn](http://gunicorn.org/)
