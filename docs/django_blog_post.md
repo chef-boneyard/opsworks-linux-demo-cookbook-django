@@ -360,12 +360,6 @@ Finally, within our ``application`` resource, we set up the required WSGI-compat
 
 Without any additional configuration, we are accepting the default, which will have gunicorn running on port 80. 
 
-### Summary
-
-
-
-
-
 
 ### Cleanup
 
@@ -375,6 +369,14 @@ delete-app
 delete-instance
 delete-layer
 delete-stack
+
+### Summary
+
+
+
+
+
+
 
 
 ## Further Resources
