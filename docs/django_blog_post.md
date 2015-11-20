@@ -132,12 +132,56 @@ If you do not have the AWS environment minimal requirements, check out the proce
 
 If you don't have the AWS CLI or the ability to install it, just take the process and apply it to the GUI in the AWS console.  
 
-### 
+If you don't already have an AWS configuration, go ahead and create one to simplify your AWS CLI commands. 
 
-*Note*: The AWS OpsWorks CLI endpoint is only available in region *us-east-1*. This region specification is separate from the stack's region configuration. 
+Add the following to ``~/.aws/config``, making sure to paste in your ``aws_access_key_id`` and ``aws_secret_access_key`` values. Don't leave these blank! :
+
+```
+
+[default]
+region = us-east-1
+aws_access_key_id = 
+aws_secret_access_key = 
+
+```
+
+### Create your First Stack
+
+*Note*: The AWS OpsWorks CLI endpoint, ``opsworks.us-east-1.amazonaws.com``,  is only available in region *us-east-1*. This region specification is separate from the stack's region configuration. 
+
+**Note**: The AWS OpsWorks CLI configuration variable for the Chef Version is ``ConfigurationManager``. Make sure that you are specifying at minimum Chef Version 12. 
 
 
-Amazon Resource Names(ARNs) uniquely identify resources on AWS. To work with AWS OpsWorks, we need to obtain the *ServiceRoleArn* ARN. 
+Amazon Resource Names(ARNs) uniquely identify resources on AWS. To work with AWS OpsWorks, we need to obtain the **ServiceRoleArn** ARN. To do this, we will first need to create a stack, and then get the **ServiceRoleArn**.
+
+   1. Using your IAM user, sign in to the AWS OpsWorks console at https://console.aws.amazon.com/opsworks.
+   2. Do one of the following:
+      * If the Welcome to AWS OpsWorks page displays, choose Add your first stack or Add your first AWS OpsWorks stack. The Add stack page displays.
+      * If the OpsWorks Dashboard page displays, choose Add stack. The Add stack page displays.
+      * If the Add stack page displays, don't do anything else yet.
+   3. Select the Chef 12 stack.
+   4. Fill in the form as follows:
+      * Stack name DjangoTestStack
+      * Region US West (Oregon)
+      * Default operating system Linux Red Hat Enterprise 7
+   5. Click on custom Chef cookbooks Yes.
+   6. Fill in the custom Chef cookbooks form with the following information:
+      * Repository type Git
+      * Repository URL https://s3.amazonaws.com/test-demo-django/opsworks-linux-demo-cookbook-django.tar.gz
+   7. Click on Advanced to get further options.
+   8. Fill in the Advanced form as follows.
+      * OpsWorks Agent version "Use latest version"
+   9. Click on Add Stack.
+
+The following commands assume an AWS configuration that has been set with the region information as **us-east-1**. If you can't set this in your configuration you will need to add a flag ``--region us-east-1`` to each of these commands. 
+
+Verify that you can see your newly created stack by using the AWS CLI.
+
+```
+$ aws opsworks describe-stacks
+```
+
+Set up an environmental variable of ``SERVICE_ROLE_ARN``:
 
 ```
 SERVICE_ROLE_ARN=$(aws opsworks describe-stacks --query 'Stacks[*].ServiceRoleArn' --output text |awk '{ print $1 }')
@@ -145,13 +189,22 @@ SERVICE_ROLE_ARN=$(aws opsworks describe-stacks --query 'Stacks[*].ServiceRoleAr
 
 In this command, we are using the AWS OpsWorks CLI *describe-stacks* command to pull information about the stacks, pulling out just the ServiceRoleArn in order to use it later. 
 
+Set up an environmental variable of ``DEFAULT_INSTANCE_PROFILEs_ARN``:
+
 ```
 DEFAULT_INSTANCE_PROFILEs_ARN=$(aws opsworks describe-stacks --query 'Stacks[*].DefaultInstanceProfileArn' --output text |awk '{ print $1 }')
 ```
 
 In this command, we are using the AWS OpsWorks CLI *describe-stacks* command to pull information about the stacks, pulling out just  DefaultInstanceProfileArn.
 
-STACK\_ID=$(aws opsworks --region us-east-1 create-stack --name chef-12 --service-role-arn $SERVICE_ROLE_ARN --default-instance-profile-arn $DEFAULT\_
+Obtain the StackId of the stack we just created. If you are already using opsworks, you'll need to determine this and set STACK_ID appropriately.
+
+```
+STACK_ID=$(aws opsworks describe-stacks --query 'Stacks[*].StackId' --output text)
+```
+
+
+
 
 INSTANCE\_PROFILE_ARN --configuration-manager Name=Chef,Version=12 --stack-region us-west-2 --output text)
 LAYER_ID=$(aws opsworks --region us-east-1 create-layer --stack-id $STACK_ID --type custom --name kustom --shortname kustom --output text)
@@ -160,6 +213,14 @@ aws opsworks --region us-east-1 start-instance --instance-id $INSTANCE_ID
 
 ssh ec2-user@IPADDRESS -i SSH\_KEY\_PAIR.pem 
 
+
+Now that you have created a functioning stack, layer, and instances, you can create additional stacks using the AWS CLI. You just need the ``ServiceRoleArn`` and the ``DefaultInstanceProfileArn`` which we obtained earlier in this how-to post.
+
+The command looks like this:
+
+```
+STACK_ID=$(aws opsworks create-stack --name STACK_NAME --service-role-arn $SERVICE_ROLE_ARN --default-instance-profile-arn $DEFAULT
+```
 
 ## Further Resources
 
