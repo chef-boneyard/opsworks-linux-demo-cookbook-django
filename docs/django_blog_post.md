@@ -83,24 +83,6 @@ dpaste is a Django based pastebin. Based off [installation instructions](http://
 
 In this how-to, we will use **gunicorn**, a lightweight Python WSGI HTTP server. 
 
-### Django File Structure
-
-The root directory naming is useful to you but doesn't matter to Django. You can name it whatever you want, and is just a container for the Django project.
-
-Within the root directory, there are a number of critical files.
-
-The `manage.py` file is a command-line utility to manage the specific Django project. 
-
-The app directory within your root directory is the actual Python package for your project. The name of this project directory is the name of the Python package you will need to use to import anything inside of it. For example project **mysite**, would have `mysite.urls`.
-
-Within the project directory, `__init__.py` exists as an empty file that marks it as a Python package. 
-
-Within the project directory, `settings.py` has specific configuration information about this Django project. 
-
-Within the project directory, `urls.py` has the URL declarations for this Django project, essentially this is the table of contents. 
-
-Within the project directory, `wsgi.py` has the configuration information for the WSGI-compatible web servers that will serve the Django project.
-
 ## Introducing the Chef Community Supermarket
 
 The hosted [Chef Supermarket](http://supermarket.chef.io) is the location to find community shared cookbooks. Some of these cookbooks are maintained by my team, the Community Engineering team, others are maintained by individuals in the community.
