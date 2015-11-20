@@ -44,16 +44,15 @@ A common practice is to have multiple stacks that represent different environmen
 
 An *AWS OpsWorks lifecycle event* is one of a set of 5 events that can occur with an *AWS OpsWorks layer*: Setup, Configure, Deploy, Undeploy, and Shutdown.At each layer there will be a set of recipes associated and run when the [lifecycle event](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html) is triggered. 
 
-
 ### Django Terminology
 
-Within Django an *app* is a Web application that does something, for example a poll app. Within Django a *project* is a collection of apps and configurations. An *app* can be in multiple projects.
+Within Django an **app** is a Web application that does something, for example a poll app. Within Django a **project** is a collection of apps and configurations. An **app** can be in multiple projects.
 
-Django follows the MVC(Model View Controller) architectural pattern. The model will handle all the data and business logic. The view will present data to the user in the supported format and layout. The controller will receive the requests (HTTP GET or POST for example), coordinate, and call the appropriate resources to carry them out. 
+Django follows the MVC(Model View Controller) architectural pattern. In the MVC architectural pattern, the model handls all the data and business logic, the view presents data to the user in the supported format and layout, and the controller receives the requests (HTTP GET or POST for example), coordinates, and calls the appropriate resources to carry them out. 
 
 When creating a web application, we generally create a set of controllers, models, and views. The reason that it uses this pattern is to provide some separation between the presentation (what the user sees) and the application logic. 
 
-In Django, the view pattern is implemented through an abstraction called a  template and the controller pattern is implemented through an abstraction called a view.[1][1]. 
+In Django, the view pattern is implemented through an abstraction called a  **template** and the controller pattern is implemented through an abstraction called a **view**.[1][1]. 
 
 ### Django Installation Requirements
 
@@ -207,17 +206,53 @@ We have created an **AWS OpsWorks stack** called **DjangoTestStack** that will c
 
 ### Create your First Layer
 
-Next we will create our first layer. 
+Next we will create our first layer. Remember that an **AWS OpsWorks layer** is a blueprint that describes a set of one or more instances. The shortname is required to only contain lower case a-z, 0-9, and - or _ characters.
 
-LAYER_ID=$(aws opsworks --region us-east-1 create-layer --stack-id $STACK_ID --type custom --name kustom --shortname kustom --output text)
+```
+LAYER_ID=$(aws opsworks create-layer --stack-id $STACK_ID --type custom --name DjangoDemoLayer --shortname djangodemolayer --output text)
+```
 
-INSTANCE\_PROFILE_ARN --configuration-manager Name=Chef,Version=12 --stack-region us-west-2 --output text)
-LAYER_ID=$(aws opsworks --region us-east-1 create-layer --stack-id $STACK_ID --type custom --name kustom --shortname kustom --output text)
-INSTANCE_ID=$(aws opsworks --region us-east-1 create-instance --stack-id $STACK\_ID --layer-id $LAYER_ID --instance-type c3.large --output text)
-aws opsworks --region us-east-1 start-instance --instance-id $INSTANCE_ID
+Examine the layer you just created.
 
-ssh ec2-user@IPADDRESS -i SSH\_KEY\_PAIR.pem 
+```
+aws opsworks describe-layers --layer-ids $LAYER_ID
+```
 
+### Add an Instance to your Layer
+
+Add a ```c3.large``` instance to our Layer.
+
+```
+INSTANCE_ID=$(aws opsworks  create-instance --stack-id $STACK_ID --layer-id $LAYER_ID --instance-type c3.large --output text)
+
+```
+
+Start our instance.
+
+```
+aws opsworks start-instance --instance-id $INSTANCE_ID
+```
+
+Examine our instance.
+
+```
+aws opsworks describe-instances --instance-ids $INSTANCE_ID
+```
+
+It will take a few minutes for the instance to finish spinning up, so be patient.  Status will progress from **stopped** to **requested**, to **pending**, to **booting**, to **running_setup**, and then finally to **online**. 
+
+After **Status** changes to **online**, **setting up** changes from **1** to **0**, online changes from **0** to **1**.
+
+Obtain the IP Address of the instance that was just created.
+
+```
+
+IPADDRESS=$(aws opsworks describe-instances --instance-ids $INSTANCE_ID --query 'Instances[*].PublicIp' --output text)
+```
+
+```
+ssh ec2-user@IPADDRESS -i SSH_KEY_PAIR.pem 
+```
 
 Now that you have created a functioning stack, layer, and instances, you can create additional stacks using the AWS CLI. You just need the ``ServiceRoleArn`` and the ``DefaultInstanceProfileArn`` which we obtained earlier in this how-to post.
 
@@ -226,6 +261,16 @@ The command looks like this:
 ```
 STACK_ID=$(aws opsworks create-stack --name STACK_NAME --service-role-arn $SERVICE_ROLE_ARN --default-instance-profile-arn $DEFAULT
 ```
+
+### Cleanup
+
+stop-instance
+stop-stack
+delete-app
+delete-instance
+delete-layer
+delete-stack
+
 
 ## Further Resources
 
