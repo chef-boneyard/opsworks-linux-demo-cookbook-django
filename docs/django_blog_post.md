@@ -60,6 +60,8 @@ There are core applications required to install [Django](https://docs.djangoproj
 
 Understanding the requirements of our application help us decide on how we will approach automating the installation. It also helps us in understanding whether a community cookbook serves our needs, what customizations we might need, and the overall effort of those customizations.
 
+
+
 ### Django Deployment Requirements 
 
 In order for Django to be useful, you also need a few additional applications: WSGI-compatible web server, and a database application.
@@ -67,6 +69,17 @@ In order for Django to be useful, you also need a few additional applications: W
 The **Web Server Gateway Interface (WSGI)** is a specification for a simple and universal interface between a web server and web application for Python, in other words the communication strategy. The goal is that any application written to the spec will run on any server that also complies to the spec.
 
 A WSGI-compatible web server will receive client requests and pass them to the underlying WSGI-compatible web application. It will also receive responses from the web application and return them to the client. 
+
+**Note**: In this how-to post, we are deploying a Django app, ``dpaste`` from code straight off of github ``https://github.com/bartTC/dpaste``. In general you shouldn't do this, as you should validate the software that you are installing does what you want it to do. For the purpose of understanding the concepts in this post, it works. 
+
+dpaste is a Django based pastebin. Based off [installation instructions](http://dpaste.readthedocs.org/en/latest/installation.html), we know that we need to do the following things to get dpaste running:
+
+* Get the application code locally.
+* Create a virtualenv.
+* Install the required python packages into the environment.
+* Sync the models to the database.
+* Propagate models to the database schema.
+* Start up a web server.
 
 In this how-to, we will use **gunicorn**, a lightweight Python WSGI HTTP server. 
 
