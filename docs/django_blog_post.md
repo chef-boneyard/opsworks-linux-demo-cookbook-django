@@ -305,7 +305,7 @@ end
 ```
 This ``git`` parameter is based off of the value that we set for the ``AWS OpsWork App`` Application Source Repository URL value earlier, i.e. ``https://github.com/bartTC/dpaste.git``.
 
-Next, within the ``application`` resource, we are defining additional parameters. Here is where we customize based on our requirements. For this guide, we are using the latest python 2 and configuring a virtualenv for our environment based off of the application name.
+Next, within the ``application`` resource, we are defining additional parameters. If you were writing a wrapper around the ``application_python`` cookbook, this is one place you would customize based on your requirements. For this guide, we are using the latest python 2 and configuring a virtualenv for our environment based off of the application name, ``dpaste``.
 
 ```  
   python '2'
