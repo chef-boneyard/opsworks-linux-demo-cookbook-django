@@ -42,7 +42,7 @@ A **stack** is the top-level AWS OpsWorks entity. Each stack will contain one or
 
 A common practice is to have multiple stacks that represent different environments. A typical set of stacks might consist of a development, staging, and production stacks. 
 
-A *lifecycle event* is one of a set of 5 events that can occur with a *layer*: Setup, Configure, Deploy, Undeploy, and Shutdown. At each layer there will be a set of recipes associated and run when the [lifecycle event](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html) is triggered. 
+A **lifecycle event** is one of a set of 5 events that can occur with a *layer*: Setup, Configure, Deploy, Undeploy, and Shutdown. At each layer there will be a set of recipes associated and run when the [lifecycle event](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html) is triggered. 
 
 ## Problem Space
 
@@ -184,6 +184,24 @@ Without any additional configuration, we are accepting the default, which will h
 
 ## Bundling up the Cookbook for OpsWorks
 
+Identify your artifactory store. OpsWorks can work with either HTTP or S3. 
+
+Using S3 is pretty simple. Create the bucket where you will store the cookbooks.
+
+Once it's created you can then use the AWS S3 CLI to cp the cookbook up to S3.
+
+1. Within the ``opsworks-linux-demo-cookbook-django`` directory run ``berks package``.
+2. Use the aws s3 cli to copy up the resulting cookbooks artifact to your bucket.
+
+```
+aws s3 cp COOKBOOKS_ARTIFACT.tar.gz s3://YOURBUCKET/opsworks-linux-demo-cookbook-django.tar.gz
+```
+
+3. Verify the upload with the aws s3 cli.
+
+```
+aws s3 ls s3://YOURBUCKET
+```
 
 ## Introducing the Django App Server layer
 
