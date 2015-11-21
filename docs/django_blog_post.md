@@ -64,7 +64,7 @@ A WSGI-compatible web server will receive client requests and pass them to the u
 
 **Note**: In this how-to post, we are deploying a Django app, ``dpaste`` from code straight off of github ``https://github.com/bartTC/dpaste``. In general you shouldn't do this, as you should validate the software that you are installing does what you want it to do. For the purpose of understanding the concepts in this post, it works. 
 
-dpaste is a Django based pastebin. Based off [installation instructions](http://dpaste.readthedocs.org/en/latest/installation.html), we know that we need to do the following things to get dpaste running:
+dpaste is a Django based pastebin. From the [installation instructions](http://dpaste.readthedocs.org/en/latest/installation.html), we know that we need to do the following things to get dpaste running:
 
 * Get the application code locally.
 * Create a virtualenv.
@@ -85,28 +85,121 @@ The Supermarket interface gives us quite a bit of information about this cookboo
 
 A key requirement to note is that **Chef 12** or later is required. Make sure that if you modify the instructions in this how-to that at minimum you use Chef 12. 
 
+## Download the Cookbook from the Supermarket
+
+For the purposes of this part of the walkthrough, we assume that you have the following setup on your working environment:
+
+* [git (or some mechanism to access and download the sample repo)](https://git-scm.com/downloads)
+* [Chef Development Kit (chefdk)](https://downloads.chef.io/chef-dk/)
+
+### Examining our recipe
+
+Within our default recipe, we are using the ``package`` resource to install ``git`` on our node.
+
+```
+package 'git' do
+  options '--force-yes' if node['platform'] == 'ubuntu' && node['platform_version'] == '14.04'
+end
+```
+
+Next, we are using the ``application`` resource. 
+
+```
+application app_path do
+ ...
+end
+```
+
+``app_path`` is a ruby variable that we have defined at the top of our recipe based off of the ``AWS OpsWork App`` name that we created earlier.
+
+```
+app = search(:aws_opsworks_app).first
+app_path = "/srv/#{app['shortname']}"
+```
+
+Within the ``application`` resource we are defining a ``git`` parameter.
+
+```
+git app_path do
+  repository app['app_source']['url']
+  action :sync
+end
+```
+This ``git`` parameter is based off of the value that we set for the ``AWS OpsWork App`` Application Source Repository URL value earlier, i.e. ``https://github.com/bartTC/dpaste.git``.
+
+Next, within the ``application`` resource, we are defining additional parameters. If you were writing a wrapper around the ``application_python`` cookbook, this is one place you would customize based on your requirements. For this guide, we are using the latest python 2 and configuring a virtualenv for our environment based off of the application name, ``dpaste``.
+
+```  
+  python '2'
+  virtualenv
+```
+
+Next, within the ``application`` resource, we have the parameter ``pip_requirements``. This parameter makes sure that ``pip install -r requirements.txt`` is run. This is a python standard to install python packages within the virtualenv based off of a ``requirements.txt`` file.[2][] 
+
+For our application, this requirements.txt file is coming from our source code ``https://github.com/bartTC/dpaste/blob/master/requirements.txt``. 
+
+```
+  pip_requirements
+```
+
+Next, we add additional configuration information to the ``dpaste/settings/deploy.py`` file. 
+
+TODO -- need to fix the path here, as it's incorrect within the scope of opsworks. probably should just say the app name is dpaste to eliminate the troubles here. 
+
+```
+  file ::File.join(path, 'dpaste', 'settings', 'deploy.py') do
+    content "from dpaste.settings.base import *\nfrom dpaste.settings.local_settings import *\n"
+  end
+
+```
+
+Next within the ``application`` resource, we specify the ``django`` parameter. This is a very detailed parameter with a lot going on. Within this block we:
+
+* configure Django to be installed, 
+* allow connections to Django from localhost only, 
+* add the Dpaste application to the 
+* configure the Django Object Relational Mapping(ORM) to use a local SQLite database,
+* sync our models to our database,
+* propagate changes to our models to our database schema.
+
+```
+  django do
+    allowed_hosts ['localhost', node['fqdn']]
+    settings_module 'dpaste.settings.deploy'
+    database 'sqlite:///dpaste.db'
+    syncdb true
+    migrate true
+  end
+
+```
+
+Finally, within our ``application`` resource, we set up the required WSGI-compatible web server, **gunicorn**, a lightweight Python WSGI HTTP server. 
+
+```
+  gunicorn
+
+```
+
+Without any additional configuration, we are accepting the default, which will have gunicorn running on port 80. 
+
+## Bundling up the Cookbook for OpsWorks
+
+
 ## Introducing the Django App Server layer
 
-The Django App Server layer is an AWS OpsWorks layer that will provide a blueprint for instances that function as Django application servers. It is based on python, pip, and virtualenv. 
- 
-### Using the Django App Server layer
+The Django App Server layer is an AWS OpsWorks layer that will provide a blueprint for instances that function as Django application servers. 
+
+### Creating the Django App Server layer
 
 **Note**: Make sure that you do not use the app name of **test** or **django** as these names will cause conflicts with Python or Django.
 
 **Note**: When you choose a location for your Django source, don't drop it in your web server's document root. Django is separate from your web server and you don't want to expose the underlying code.
 
-## Walkthrough
-
 Now that we've set the context of what we are doing, let's take a look at this sample cookbook and walkthrough the process of using it.
 
 ### Prerequisites and Assumptions
 
-For the purposes of this walkthrough, we assume that you have the following setup on your working environment:
-
-* [git (or some mechanism to access and download the sample repo)](https://git-scm.com/downloads)
-* [Chef Development Kit (chefdk)](https://downloads.chef.io/chef-dk/)
-
-We also assume that in your AWS environment that you have:
+For the purposes of this part of the walkthrough, we assume that you have the following setup in your AWS environment:
 
 * Signed up for an AWS account
 * IAM User credentials
@@ -117,6 +210,9 @@ If you do not have the AWS environment minimal requirements, check out the proce
 
 If you don't have the AWS CLI or the ability to install it, just take the process and apply it to the GUI in the AWS console.  
 
+### Local AWS Configuration
+
+When using the AWS CLI, it's helpful to have a local AWS configuration.
 If you don't already have an AWS configuration, go ahead and create one to simplify your AWS CLI commands. 
 
 Add the following to ``~/.aws/config``, making sure to paste in your ``aws_access_key_id`` and ``aws_secret_access_key`` values. Don't leave these blank! :
@@ -125,8 +221,8 @@ Add the following to ``~/.aws/config``, making sure to paste in your ``aws_acces
 
 [default]
 region = us-east-1
-aws_access_key_id = 
-aws_secret_access_key = 
+aws_access_key_id =
+aws_secret_access_key =
 
 ```
 
@@ -134,26 +230,26 @@ aws_secret_access_key =
 
 **Note**: The AWS OpsWorks CLI endpoint, ``opsworks.us-east-1.amazonaws.com``,  is only available in region *us-east-1*. This region specification is separate from the stack's region configuration. 
 
-**Note**: The AWS OpsWorks CLI configuration variable for the Chef Version is ``ConfigurationManager``. Make sure that you are specifying at minimum Chef Version 12. 
+**Note**: The OpsWorks CLI configuration variable for the Chef version is ``ConfigurationManager``. Make sure that you are specifying at minimum Chef Version 12. 
 
 Amazon Resource Names(ARNs) uniquely identify resources on AWS. To work with AWS OpsWorks, we need to obtain the **ServiceRoleArn** ARN. To do this, we will first need to create a stack, and then get the **ServiceRoleArn**.
 
-Remember, that the **AWS OpsWorks stack** is the top-level AWS OpsWorks entity that will contain our layers.
+Remember, that the **stack** is the top-level OpsWorks entity that will contain our layers.
 
-   1. Using your IAM user, sign in to the AWS OpsWorks console at https://console.aws.amazon.com/opsworks.
+   1. Using your IAM user, sign in to the OpsWorks console at https://console.aws.amazon.com/opsworks.
    2. Do one of the following:
       * If the Welcome to AWS OpsWorks page displays, choose Add your first stack or Add your first AWS OpsWorks stack. The Add stack page displays.
       * If the OpsWorks Dashboard page displays, choose Add stack. The Add stack page displays.
       * If the Add stack page displays, don't do anything else yet.
    3. Select the Chef 12 stack.
    4. Fill in the form as follows:
-      * Stack name DjangoTestStack
-      * Region US West (Oregon)
-      * Default operating system Linux Red Hat Enterprise 7
-   5. Click on custom Chef cookbooks Yes.
+      * Stack name **DjangoTestStack**
+      * Region **US West (Oregon)**
+      * Default operating system **Linux Red Hat Enterprise 7**
+   5. Click on custom Chef cookbooks **Yes**.
    6. Fill in the custom Chef cookbooks form with the following information:
-      * Repository type Git
-      * Repository URL https://s3.amazonaws.com/chef-django-opswork-test/opsworks-linux-demo-cookbook-django.tar.gz
+      * Repository type 
+      * Repository URL 
    7. Click on Advanced to get further options.
    8. Fill in the Advanced form as follows.
       * OpsWorks Agent version "Use latest version"
@@ -257,95 +353,6 @@ The command looks like this:
 STACK_ID=$(aws opsworks create-stack --name STACK_NAME --service-role-arn $SERVICE_ROLE_ARN --default-instance-profile-arn $DEFAULT
 ```
 
-### Examining our recipe
-
-Within our default recipe, we are using the ``package`` resource to install ``git`` on our node.
-
-```
-package 'git' do
-  options '--force-yes' if node['platform'] == 'ubuntu' && node['platform_version'] == '14.04'
-end
-```
-
-Next, we are using the ``application`` resource. 
-
-```
-application app_path do
- ...
-end
-```
-
-``app_path`` is a ruby variable that we have defined at the top of our recipe based off of the ``AWS OpsWork App`` name that we created earlier.
-
-```
-app = search(:aws_opsworks_app).first
-app_path = "/srv/#{app['shortname']}"
-```
-
-Within the ``application`` resource we are defining a ``git`` parameter.
-
-```
-git app_path do
-  repository app['app_source']['url']
-  action :sync
-end
-```
-This ``git`` parameter is based off of the value that we set for the ``AWS OpsWork App`` Application Source Repository URL value earlier, i.e. ``https://github.com/bartTC/dpaste.git``.
-
-Next, within the ``application`` resource, we are defining additional parameters. If you were writing a wrapper around the ``application_python`` cookbook, this is one place you would customize based on your requirements. For this guide, we are using the latest python 2 and configuring a virtualenv for our environment based off of the application name, ``dpaste``.
-
-```  
-  python '2'
-  virtualenv
-```
-
-Next, within the ``application`` resource, we have the parameter ``pip_requirements``. This parameter makes sure that ``pip install -r requirements.txt`` is run. This is a python standard to install python packages within the virtualenv based off of a ``requirements.txt`` file.[2][] 
-
-For our application, this requirements.txt file is coming from our source code ``https://github.com/bartTC/dpaste/blob/master/requirements.txt``. 
-
-```
-  pip_requirements
-```
-
-Next, we add additional configuration information to the ``dpaste/settings/deploy.py`` file. 
-
-TODO -- need to fix the path here, as it's incorrect within the scope of opsworks. probably should just say the app name is dpaste to eliminate the troubles here. 
-
-```
-  file ::File.join(path, 'dpaste', 'settings', 'deploy.py') do
-    content "from dpaste.settings.base import *\nfrom dpaste.settings.local_settings import *\n"
-  end
-
-```
-
-Next within the ``application`` resource, we specify the ``django`` parameter. This is a very detailed parameter with a lot going on. Within this block we:
-
-* configure Django to be installed, 
-* allow connections to Django from localhost only, 
-* add the Dpaste application to the 
-* configure the Django Object Relational Mapping(ORM) to use a local SQLite database,
-* sync our models to our database,
-* propagate changes to our models to our database schema.
-
-```
-  django do
-    allowed_hosts ['localhost', node['fqdn']]
-    settings_module 'dpaste.settings.deploy'
-    database 'sqlite:///dpaste.db'
-    syncdb true
-    migrate true
-  end
-
-```
-
-Finally, within our ``application`` resource, we set up the required WSGI-compatible web server, **gunicorn**, a lightweight Python WSGI HTTP server. 
-
-```
-  gunicorn
-
-```
-
-Without any additional configuration, we are accepting the default, which will have gunicorn running on port 80. 
 
 
 ### Cleanup
