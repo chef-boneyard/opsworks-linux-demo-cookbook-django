@@ -48,7 +48,7 @@ An *lifecycle event* is one of a set of 5 events that can occur with an *AWS Ops
 
 Within Django an **app** is a Web application that does something, for example a poll app. Within Django a **project** is a collection of apps and configurations. An **app** can be in multiple projects.
 
-## Problem Space
+Django follows the MVC (Model View Controller) architectural pattern. In the MVC architectural pattern, the model handles all the data and business logic, the view presents data to the user in the supported format and layout, and the controller receives the requests (HTTP GET or POST for example), coordinates, and calls the appropriate resources to carry them out.
 
 We want to deploy ``dpaste``, an open source project that stores text snippets. It is a Django project so it requires Django to be installed on the system. Django is a free and open source web application framework written in Python.
 
@@ -56,13 +56,13 @@ We want to deploy ``dpaste``, an open source project that stores text snippets. 
 
 There are core applications required to install [Django](https://docs.djangoproject.com): Python, a package management system like pip, and optionally **virtualenv**, a way to isolate your python environments. You have a number of choices that may change how you want to deploy within your environment, for example what version of Python you are using as a standard within your organization. Before you run something in production, you should always understand the implications of what you are doing, and why.
 
-Understanding the requirements of our application help us decide on how we will approach automating the installation. It also helps us in understanding whether a community cookbook serves our needs, what customizations we might need, and the overall effort of those customizations.
+Understanding the requirements of our application helps us decide how we will approach automating the installation. It also helps us in understanding whether a community cookbook serves our needs, what customizations we might need, and the overall effort of those customizations.
 
 ### Django Deployment Requirements
 
 In order for Django to be useful, you also need a few additional applications: WSGI-compatible web server, and a database application.
 
-The **Web Server Gateway Interface (WSGI)** is a specification for a simple and universal interface between a web server and web application for Python, in other words the communication strategy. The goal is that any application written to the spec will run on any server that also complies to the spec.
+The **Web Server Gateway Interface (WSGI)** is a specification for a simple and universal interface between a web server and web application for Python. The goal is that any application written to the specification will run on any server that also complies with the specification.
 
 A WSGI-compatible web server will receive client requests and pass them to the underlying WSGI-compatible web application. It will also receive responses from the web application and return them to the client.
 
@@ -85,7 +85,7 @@ The [Chef Supermarket](http://supermarket.chef.io) is the location to find cookb
 
 In our example cookbook, we will be using the [application_python](https://supermarket.chef.io/cookbooks/application_python) cookbook to manage our Django app. We could custom create a cookbook, but for the purpose of this how-to this cookbook is sufficient.
 
-The Supermarket interface gives us quite a bit of information about this cookbook. It shows the README which has information about quickly getting started, requirements, and dependencies. We can go directly to the source code, or [download the cookbook](https://supermarket.chef.io/cookbooks/application_python/download) direct from the Supermarket.
+The Supermarket interface gives us quite a bit of information about this cookbook. It shows the README which has information about quickly getting started, requirements, and dependencies. We can go directly to the source code, or [download the cookbook](https://supermarket.chef.io/cookbooks/application_python/download) directly from the Supermarket.
 
 A key requirement to note is that **Chef 12** or later is required. Make sure that if you modify the instructions in this how-to that at minimum you use Chef 12.
 
@@ -226,7 +226,7 @@ For the purposes of this part of the walkthrough, we assume that you have the fo
 * Signed up for an AWS account
 * IAM User credentials
 * Service Access Permissions enabled on your IAM user
-* [AWS Command Line Tool(AWS CLI)](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) installed on your workstation.
+* [AWS Command Line Tool (AWS CLI)](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) installed on your workstation.
 
 If you do not have the AWS environment minimal requirements, check out the process here to get this setup.
 
@@ -243,8 +243,8 @@ Add the following to ``~/.aws/config``, making sure to paste in your ``aws_acces
 
 [default]
 region = us-east-1
-aws_access_key_id =
-aws_secret_access_key =
+aws_access_key_id = PUT_YOUR_KEY_ID_HERE
+aws_secret_access_key = PUT_YOUR_SECRET_ACCESS_KEY_HERE
 
 ```
 
@@ -254,7 +254,7 @@ aws_secret_access_key =
 
 **Note**: The OpsWorks CLI configuration variable for the Chef version is ``ConfigurationManager``. Make sure that you are specifying at minimum Chef Version 12.
 
-Amazon Resource Names(ARNs) uniquely identify resources on AWS. To work with AWS OpsWorks, we need to obtain the **ServiceRoleArn** ARN. To do this, we will first need to create a stack, and then get the **ServiceRoleArn**.
+Amazon Resource Names(ARNs) uniquely identify resources on AWS. To work with AWS OpsWorks, we need to obtain the **ServiceRoleArn**. To do this, we will first need to create a stack, and then get the **ServiceRoleArn**.
 
 Remember, that the **stack** is the top-level OpsWorks entity that will contain our layers.
 
