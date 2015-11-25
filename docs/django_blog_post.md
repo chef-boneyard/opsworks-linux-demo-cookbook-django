@@ -192,11 +192,9 @@ Once it's created you can then use the AWS S3 CLI to cp the cookbook up to S3.
 
 1. Within the ``opsworks-linux-demo-cookbook-django`` directory run ``berks package``.
 2. Use the aws s3 cli to copy up the resulting cookbooks artifact to your bucket.
-
 ```
 aws s3 cp COOKBOOKS_ARTIFACT.tar.gz s3://YOURBUCKET/opsworks-linux-demo-cookbook-django.tar.gz
 ```
-
 3. Verify the upload with the aws s3 cli.
 
 ```
