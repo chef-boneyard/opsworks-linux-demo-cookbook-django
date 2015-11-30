@@ -257,6 +257,9 @@ aws_secret_access_key = PUT_YOUR_SECRET_ACCESS_KEY_HERE
 
 Amazon Resource Names(ARNs) uniquely identify resources on AWS. To work with AWS OpsWorks, we need to obtain the **ServiceRoleArn**. To do this, we will first need to create a stack, and then get the **ServiceRoleArn**.
 
+<img src="http://www.jendavis.org/assets/opswork_diagram_stack.png" width="420" height="265">
+
+
 Remember, that the **stack** is the top-level OpsWorks entity that will contain our layers, in this case specifically the Django App Server layer.
 
    1. Using your IAM user, sign in to the OpsWorks console at https://console.aws.amazon.com/opsworks.
