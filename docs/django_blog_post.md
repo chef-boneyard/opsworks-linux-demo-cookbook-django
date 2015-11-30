@@ -317,6 +317,8 @@ We have created an **AWS OpsWorks stack** called **DjangoTestStack** that will c
 
 Next we will create our first layer. Remember that an **AWS OpsWorks layer** is a blueprint that describes a set of one or more instances. The shortname is required to only contain lower case a-z, 0-9, and - or _ characters.
 
+<img src="http://www.jendavis.org/assets/opswork_diagram_layer.png" width="420" height="239">
+
 ```
 LAYER_ID=$(aws opsworks create-layer --stack-id $STACK_ID --type custom --name DjangoDemoLayer --shortname djangodemolayer --output text)
 ```
@@ -329,6 +331,9 @@ aws opsworks describe-layers --layer-ids $LAYER_ID
 
 
 ### Add an App
+
+<img src="http://www.jendavis.org/assets/opswork_diagram_app.png" width="450" height="161">
+
 
     1. In the service navigation pane, choose Apps, as displayed in the following screenshot:
     2. The Apps page displays. Choose Add an app. The Add App page displays.
