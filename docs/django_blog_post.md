@@ -32,9 +32,9 @@ An **app** represents code that you want to run on an application server. Code i
 
 An **instance** represents a computing resource, such as an Amazon EC2 instance.
 
-An **layer** is a blueprint that describes a set of one or more instances. The layer defines the packages that are installed and other configurations.  Instances can belong to multiple layers, as long as the layers don't have overlapping configurations.
+A **layer** is a blueprint that describes a set of one or more instances. The layer defines the packages that are installed and other configurations.  Instances can belong to multiple layers, as long as the layers don't have overlapping configurations.
 
-An **stack** is the top-level OpsWorks entity. Each stack will contain one or more layers which each contain instances. As a whole, the stack represents a set of instances that you want to manage collectively. An example of a web application stack might look something like:
+A **stack** is the top-level OpsWorks entity. Each stack will contain one or more layers which each contain instances. As a whole, the stack represents a set of instances that you want to manage collectively. An example of a web application stack might look something like:
 
 * A set of application server instances.
 * A load balancer instance which takes incoming traffic and distributes it across the application servers.
@@ -87,7 +87,7 @@ In our example cookbook, we will be using the [application_python](https://super
 
 The Supermarket interface gives us quite a bit of information about this cookbook. It shows the README which has information about quickly getting started, requirements, and dependencies. We can go directly to the source code, or [download the cookbook](https://supermarket.chef.io/cookbooks/application_python/download) directly from the Supermarket.
 
-A key requirement to note is that **Chef 12** or later is required. Make sure that if you modify the instructions in this how-to that at minimum you use Chef 12.
+A key requirement to note is that **Chef 12** or later is required. Make sure that if you modify the instructions in this how-to that at minimum you use Chef 12 if using this cookbook.
 
 ## Download the Cookbook from the Supermarket
 
@@ -205,7 +205,10 @@ aws s3 cp COOKBOOKS_ARTIFACT.tar.gz s3://YOURBUCKET/opsworks-linux-demo-cookbook
 aws s3 ls s3://YOURBUCKET
 ```
 
+
 ## Introducing the Django App Server layer
+
+<img src="http://www.jendavis.org/assets/django-opsworks-diagram.png" width="400" height="192">
 
 The Django App Server layer is an AWS OpsWorks layer that will provide a blueprint for instances that function as Django application servers.
 
@@ -254,7 +257,7 @@ aws_secret_access_key = PUT_YOUR_SECRET_ACCESS_KEY_HERE
 
 Amazon Resource Names(ARNs) uniquely identify resources on AWS. To work with AWS OpsWorks, we need to obtain the **ServiceRoleArn**. To do this, we will first need to create a stack, and then get the **ServiceRoleArn**.
 
-Remember, that the **stack** is the top-level OpsWorks entity that will contain our layers.
+Remember, that the **stack** is the top-level OpsWorks entity that will contain our layers, in this case specifically the Django App Server layer.
 
    1. Using your IAM user, sign in to the OpsWorks console at https://console.aws.amazon.com/opsworks.
    2. Do one of the following:
