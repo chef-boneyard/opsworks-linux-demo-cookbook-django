@@ -347,6 +347,8 @@ aws opsworks describe-layers --layer-ids $LAYER_ID
 
 Add a ```c3.large``` instance to our Layer.
 
+<img src="http://www.jendavis.org/assets/opswork_diagram_instance.png" width="450" height="207">
+
 ```
     INSTANCE_ID=$(aws opsworks  create-instance --stack-id $STACK_ID --layer-id $LAYER_ID --instance-type c3.large --output text)
 
