@@ -186,6 +186,37 @@ Finally, within our ``application`` resource, we set up the required WSGI-compat
 
 Without any additional configuration, we are accepting the default, which will have gunicorn running on port 80.
 
+
+### Prerequisites and Assumptions
+
+For the purposes of this walkthrough, we assume that you have the following setup:
+
+* Signed up for an AWS account
+* IAM User credentials
+* Service Access Permissions enabled on your IAM user
+* [AWS Command Line Tool (AWS CLI)](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) installed on your workstation.
+
+If you do not have the AWS environment minimal requirements, check out the process here to get this setup.
+
+If you don't have the AWS CLI or the ability to install it, just take the process and apply it to the GUI in the AWS console.  
+
+### Local AWS Configuration
+
+When using the AWS CLI, it's helpful to have a local AWS configuration.
+If you don't already have an AWS configuration, go ahead and create one to simplify your AWS CLI commands.
+
+Add the following to ``~/.aws/config``, making sure to paste in your ``aws_access_key_id`` and ``aws_secret_access_key`` values. Don't leave these blank! :
+
+```
+
+[default]
+region = us-east-1
+aws_access_key_id = PUT_YOUR_KEY_ID_HERE
+aws_secret_access_key = PUT_YOUR_SECRET_ACCESS_KEY_HERE
+
+```
+
+
 ## Bundling up the Cookbook for OpsWorks
 
 Identify your artifactory store. OpsWorks can work with either HTTP or S3.
@@ -220,34 +251,6 @@ The Django App Server layer is an AWS OpsWorks layer that will provide a bluepri
 
 Now that we've set the context of what we are doing, let's take a look at this sample cookbook and walkthrough the process of using it.
 
-### Prerequisites and Assumptions
-
-For the purposes of this part of the walkthrough, we assume that you have the following setup in your AWS environment:
-
-* Signed up for an AWS account
-* IAM User credentials
-* Service Access Permissions enabled on your IAM user
-* [AWS Command Line Tool (AWS CLI)](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) installed on your workstation.
-
-If you do not have the AWS environment minimal requirements, check out the process here to get this setup.
-
-If you don't have the AWS CLI or the ability to install it, just take the process and apply it to the GUI in the AWS console.  
-
-### Local AWS Configuration
-
-When using the AWS CLI, it's helpful to have a local AWS configuration.
-If you don't already have an AWS configuration, go ahead and create one to simplify your AWS CLI commands.
-
-Add the following to ``~/.aws/config``, making sure to paste in your ``aws_access_key_id`` and ``aws_secret_access_key`` values. Don't leave these blank! :
-
-```
-
-[default]
-region = us-east-1
-aws_access_key_id = PUT_YOUR_KEY_ID_HERE
-aws_secret_access_key = PUT_YOUR_SECRET_ACCESS_KEY_HERE
-
-```
 
 ### Create your First Stack
 
