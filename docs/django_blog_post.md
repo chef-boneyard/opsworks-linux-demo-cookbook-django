@@ -96,6 +96,12 @@ For the purposes of this part of the walkthrough, we assume that you have the fo
 * [git (or some mechanism to access and download the sample repo)](https://git-scm.com/downloads)
 * [Chef Development Kit (chefdk)](https://downloads.chef.io/chef-dk/)
 
+Download and extract the Opsworks Linux Demo Django cookbook that contains our example code.  For example, using git you can clone the demo cookbook.
+
+```
+git clone https://github.com/iennae/opsworks-linux-demo-cookbook-django
+```
+
 ### Examining our recipe
 
 Within our default recipe, we are using the ``package`` resource to install ``git`` on our node.
