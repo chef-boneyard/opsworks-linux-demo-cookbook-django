@@ -281,7 +281,7 @@ Remember, that the **stack** is the top-level OpsWorks entity that will contain 
    5. Click on custom Chef cookbooks **Yes**.
    6. Fill in the custom Chef cookbooks form with the following information:
       * Repository type
-      * Repository URL
+      * Repository URL (_the_ COOKBOOKS_ARTIFACT.tar.gz _file uploaded to S3_)
    7. Click on Advanced to get further options.
    8. Fill in the Advanced form as follows.
       * OpsWorks Agent version "Use latest version"
