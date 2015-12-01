@@ -196,9 +196,6 @@ For the purposes of this walkthrough, we assume that you have the following setu
 * Service Access Permissions enabled on your IAM user
 * [AWS Command Line Tool (AWS CLI)](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) installed on your workstation.
 
-If you do not have the AWS environment minimal requirements, check out the process here to get this setup.
-
-If you don't have the AWS CLI or the ability to install it, just take the process and apply it to the GUI in the AWS console.  
 
 ### Local AWS Configuration
 
