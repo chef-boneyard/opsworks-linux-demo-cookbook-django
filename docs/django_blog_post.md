@@ -393,16 +393,48 @@ STACK_ID=$(aws opsworks create-stack --name STACK_NAME --service-role-arn $SERVI
 ```
 ### Cleanup
 
-stop-instance
-stop-stack
-delete-app
-delete-instance
-delete-layer
-delete-stack
+You can clean up via the AWS console, or from the command line. The following instructions are using command line.
+
+Stop the instance.
+
+```
+    aws opsworks stop-instance --instance-id $INSTANCE_ID
+```
+
+Stop the stack.
+
+```
+    aws opsworks stop-stack --stack-id $STACK_ID
+```
+
+Delete the app.
+
+```
+    aws opsworks delete-app --app-id $APP_ID
+```
+
+Delete the instance.
+
+```
+    aws opsworks delete-instance --instance-id $INSTANCE_ID
+```
+
+Delete the layer.
+
+```
+    aws opsworks delete-layer --layer-id $LAYER_ID
+```
+
+Delete the stack.
+
+```
+    aws opsworks delete-stack --stack-id $STACK_ID
+```
+
 
 ### Summary
 
-
+In this walk-through we used OpsWorks, Chef, and community cookbooks to create a simple web application using Django. 
 
 
 
