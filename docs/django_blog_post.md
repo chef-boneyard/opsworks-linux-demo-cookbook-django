@@ -326,6 +326,8 @@ We have created an **AWS OpsWorks stack** called **DjangoTestStack** that will c
 
 Next we will create our first layer. Remember that an **AWS OpsWorks layer** is a blueprint that describes a set of one or more instances. The shortname is required to only contain lower case a-z, 0-9, and - or _ characters.
 
+In our layer we will be associating the default recipe from our `opsworks-linux-demo-cookbook-django` cookbook to the `Deploy` lifecycle event.
+
 <img src="http://www.jendavis.org/assets/opswork_diagram_layer.png" width="420" height="239">
 
 ```
