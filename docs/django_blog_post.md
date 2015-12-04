@@ -201,6 +201,7 @@ For the purposes of this walkthrough, we assume that you have the following setu
 * IAM User credentials
 * Service Access Permissions enabled on your IAM user
 * [AWS Command Line Tool (AWS CLI)](http://docs.aws.amazon.com/cli/latest/userguide/installing.html) installed on your workstation.
+* `bash` or equivalent shell
 
 
 ### Local AWS Configuration
@@ -222,9 +223,9 @@ aws_secret_access_key = PUT_YOUR_SECRET_ACCESS_KEY_HERE
 
 ## Bundling up the Cookbook for OpsWorks
 
-Identify your artifact store. OpsWorks can work with either HTTP or S3.
+Identify your artifact store. OpsWorks can work with either `HTTP` or `S3`.
 
-Using S3 is pretty simple. Create the bucket where you will store the cookbooks.
+Using S3 is pretty simple. Create the bucket where you will store the cookbooks. Assign the correct permissions so that you can access this bucket.
 
 Once it's created you can then use the AWS S3 CLI to copy the cookbook up to S3.
 
