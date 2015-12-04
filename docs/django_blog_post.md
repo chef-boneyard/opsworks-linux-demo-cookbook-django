@@ -2,7 +2,7 @@
 
 AWS OpsWorks is an application management service that makes it easy to deploy and operate applications of all shapes and sizes.  OpsWorks supports Chef recipes for automating these services.
 
-With the release of OpsWorks Chef 12 for Linux, namespace conflicts have been resolved between OpsWorks cookbooks and Chef community cookbooks allowing people to use community cookbooks in their OpsWorks infrastructure. Chef is working closely with OpsWorks to integrate both products and remove the friction between workflows with either product.  Opsworks Chef 12 for Linux takes us one step closer by enabling the use of any community cookbooks.
+With the release of [OpsWorks Chef 12 for Linux](http://blogs.aws.amazon.com/application-management/post/Tx1T5HNA1TSU8NH/AWS-OpsWorks-Now-Supports-Chef-12-for-Linux), namespace conflicts have been resolved between OpsWorks cookbooks and Chef community cookbooks allowing people to use community cookbooks in their OpsWorks infrastructure. Chef is working closely with OpsWorks to integrate both products and remove the friction between workflows with either product.  Opsworks Chef 12 for Linux takes us one step closer by enabling the use of any community cookbooks.
 
 This post will walk through the process of using OpsWorks and Chef to create a simple web application using Django. We'll use community cookbooks and ``dpaste``, an open source project that stores text snippets using Django, a free and open source web application framework written in Python.
 
@@ -18,7 +18,7 @@ Within Chef, we have the concepts of _resources_, _recipes_, and _cookbooks_.
 
 **Resources** are the basic building blocks of our infrastructure. We can use resources as provided by core chef, pull resources in from community cookbooks, or we can extend and customize our own resources.
 
-**Recipes** are the description a specific piece of an application that we want to have running on a system. It's the ordered set of resources and potentially additional code for logic and flow control. Just as with a recipe for baking chocolate chip cookies or oatmeal cookies, the recipe will be specific to what we want to create.
+**Recipes** are the description of a specific piece of an application that we want to have running on a system. It's the ordered set of resources and potentially additional code for logic and flow control. Just as with a recipe for baking chocolate chip cookies or oatmeal cookies, the recipe will be specific to what we want to create.
 
 **Cookbooks** are a collection of recipes and other supporting files. One of the supporting files is the ``metadata.rb`` file that specifies the cookbook's version number. We can create our own cookbooks or pull from the community cookbook repository, the Supermarket.
 
@@ -40,9 +40,9 @@ A **stack** is the top-level OpsWorks entity. Each stack will contain one or mor
 * A load balancer instance which takes incoming traffic and distributes it across the application servers.
 * A database instance, which serves as a back-end data store for the application servers.
 
-A common practice is to have multiple stacks that represent different environments. A typical set of stacks might consist of a development, staging, and production stacks.
+A common practice is to have multiple stacks that represent different environments. A typical set of stacks might consist of a development, staging, and production stack.
 
-An *lifecycle event* is one of a set of 5 events that can occur with an *AWS OpsWorks layer*: Setup, Configure, Deploy, Undeploy, and Shutdown.  At each layer there will be a set of recipes associated and run when the [lifecycle event](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html) is triggered.
+A *lifecycle event* is one of a set of 5 events that can occur with an *AWS OpsWorks layer*: Setup, Configure, Deploy, Undeploy, and Shutdown.  At each layer there will be a set of recipes associated and run when the [lifecycle event](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html) is triggered.
 
 ### Django Terminology
 
@@ -70,7 +70,7 @@ A WSGI-compatible web server will receive client requests and pass them to the u
 
 dpaste is a Django based pastebin. From the [installation instructions](http://dpaste.readthedocs.org/en/latest/installation.html), we know that we need to do the following things to get dpaste running:
 
-* Get the application code locally.
+* Download the `dpaste` code.
 * Create a virtualenv.
 * Install the required python packages into the environment.
 * Sync the models to the database.
@@ -83,7 +83,7 @@ In this how-to, we will use **gunicorn**, a lightweight Python WSGI HTTP server.
 
 The [Chef Supermarket](http://supermarket.chef.io) is the location to find cookbooks shared by and with the community. Some of these cookbooks are maintained by my team, the Chef Community Engineering team, others are maintained by individuals in the community.
 
-In our example cookbook, we will be using the [application_python](https://supermarket.chef.io/cookbooks/application_python) cookbook to manage our Django app. We could custom create a cookbook, but for the purpose of this how-to this cookbook is sufficient.
+We could create a python application cookbook that would pull the application code, create the virtualenv, install the python package and all dependencies, deploy and configure our database, and start up a web server, or we could use a cookbook that is available in the community. For the purpose of this how-to, the [application_python](https://supermarket.chef.io/cookbooks/application_python) cookbook to deploy and manage our Django app.
 
 The Supermarket interface gives us quite a bit of information about this cookbook. It shows the README which has information about quickly getting started, requirements, and dependencies. We can go directly to the source code, or [download the cookbook](https://supermarket.chef.io/cookbooks/application_python/download) directly from the Supermarket.
 
@@ -120,7 +120,7 @@ application app_path do
 end
 ```
 
-``app_path`` is a ruby variable that we have defined at the top of our recipe based off of the ``AWS OpsWork App`` name that we created earlier.
+``app_path`` is a ruby variable that we have defined at the top of our recipe based off of the ``AWS OpsWorks App`` name that we created earlier.
 
 ```
 app = search(:aws_opsworks_app).first
@@ -135,7 +135,7 @@ git app_path do
   action :sync
 end
 ```
-This ``git`` parameter is based off of the value that we set for the ``AWS OpsWork App`` Application Source Repository URL value earlier, i.e. ``https://github.com/bartTC/dpaste.git``.
+This ``git`` parameter is based off of the value that we set for the ``AWS OpsWorks App`` Application Source Repository URL value earlier, i.e. ``https://github.com/bartTC/dpaste.git``.
 
 Next, within the ``application`` resource, we are defining additional parameters. If you were writing a wrapper around the ``application_python`` cookbook, this is one place you would customize based on your requirements. For this guide, we are using the latest python 2 and configuring a virtualenv for our environment based off of the application name, ``dpaste``.
 
@@ -222,18 +222,18 @@ aws_secret_access_key = PUT_YOUR_SECRET_ACCESS_KEY_HERE
 
 ## Bundling up the Cookbook for OpsWorks
 
-Identify your artifactory store. OpsWorks can work with either HTTP or S3.
+Identify your artifact store. OpsWorks can work with either HTTP or S3.
 
 Using S3 is pretty simple. Create the bucket where you will store the cookbooks.
 
-Once it's created you can then use the AWS S3 CLI to cp the cookbook up to S3.
+Once it's created you can then use the AWS S3 CLI to copy the cookbook up to S3.
 
-1. Within the ``opsworks-linux-demo-cookbook-django`` directory run ``berks package``.
-2. Use the aws s3 cli to copy up the resulting cookbooks artifact to your bucket.
+1. Within the ``opsworks-linux-demo-cookbook-django`` directory run ``berks package``.[3][] This creates a single archive containing all of the required cookbooks.
+2. Use the AWS S3 CLI to copy up the resulting cookbooks artifact to your bucket.
 ```
 aws s3 cp COOKBOOKS_ARTIFACT.tar.gz s3://YOURBUCKET/opsworks-linux-demo-cookbook-django.tar.gz
 ```
-3. Verify the upload with the aws s3 cli.
+3. Verify the upload with the AWS S3 CLI.
 
 ```
 aws s3 ls s3://YOURBUCKET
@@ -257,7 +257,7 @@ Now that we've set the context of what we are doing, let's take a look at this s
 
 ### Create your First Stack
 
-**Note**: The AWS OpsWorks CLI endpoint, ``opsworks.us-east-1.amazonaws.com``,  is only available in region *us-east-1*. This region specification is separate from the stack's region configuration.
+**Note**: The AWS OpsWorks CLI endpoint is only available in region *us-east-1*. This region specification is separate from the stack's region configuration.
 
 **Note**: The OpsWorks CLI configuration variable for the Chef version is ``ConfigurationManager``. Make sure that you are specifying at minimum Chef Version 12.
 
@@ -266,11 +266,11 @@ Amazon Resource Names(ARNs) uniquely identify resources on AWS. To work with AWS
 <img src="http://www.jendavis.org/assets/opswork_diagram_stack.png" width="420" height="265">
 
 
-Remember, that the **stack** is the top-level OpsWorks entity that will contain our layers, in this case specifically the Django App Server layer.
+The **stack** is the top-level OpsWorks entity that will contain our layers, in this case specifically the Django App Server layer.
 
    1. Using your IAM user, sign in to the OpsWorks console at https://console.aws.amazon.com/opsworks.
    2. Do one of the following:
-      * If the Welcome to AWS OpsWorks page displays, choose Add your first stack or Add your first AWS OpsWorks stack. The Add stack page displays.
+      * If the Welcome to AWS OpsWorks page displays, choose Add your first stack. The Add stack page displays.
       * If the OpsWorks Dashboard page displays, choose Add stack. The Add stack page displays.
       * If the Add stack page displays, don't do anything else yet.
    3. Select the Chef 12 stack.
@@ -393,7 +393,7 @@ STACK_ID=$(aws opsworks create-stack --name STACK_NAME --service-role-arn $SERVI
 ```
 ### Cleanup
 
-You can clean up via the AWS console, or from the command line. The following instructions are using command line.
+You can clean up via the AWS console, or from the command line. The following instructions are using the command line.
 
 Stop the instance.
 
@@ -445,10 +445,11 @@ In this walk-through we used OpsWorks, Chef, and community cookbooks to create a
 
 
 * [Chef Supermarket](http://supermarket.chef.io)
-* [Vagrant](https://www.vagrantup.com/)
+* [Berkshelf](http://berkshelf.com/index.html)
 * [AWS CLI](https://aws.amazon.com/cli/)
 * [AWS OpsWorks Lifecycle Events](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html)
 * [Green Unicorn](http://gunicorn.org/)
 
 [1]: https://docs.djangoproject.com/en/1.8/faq/general/#django-appears-to-be-a-mvc-framework-but-you-call-the-controller-the-view-and-the-view-the-template-how-come-you-don-t-use-the-standard-names
 [2]: http://pip.readthedocs.org/en/stable/reference/pip_install/#overview
+[3]: http://berkshelf.com/index.html

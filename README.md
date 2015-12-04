@@ -2,7 +2,7 @@
 
 This is a reference cookbook to show managing a Django python app on the OpsWorks platform with Chef.
 
-For additional context, you can read the [background](docs/background.md).
+For additional context, you can read the [background](docs/django_blog_post.md).
 
 ## Requirements
 ### Platforms
