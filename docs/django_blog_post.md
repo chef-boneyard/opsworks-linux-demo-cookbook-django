@@ -246,6 +246,8 @@ aws s3 ls s3://YOURBUCKET
 
 The Django App Server layer is an AWS OpsWorks layer that will provide a blueprint for instances that function as Django application servers.
 
+If you run into problems, check the [AWS OpsWorks Debugging and Troubleshooting Guide](http://docs.aws.amazon.com/opsworks/latest/userguide/troubleshoot.html).
+
 ### Creating the Django App Server layer
 
 **Note**: Make sure that you do not use the app name of **test** or **django** as these names will cause conflicts with Python or Django.
@@ -266,6 +268,7 @@ Amazon Resource Names(ARNs) uniquely identify resources on AWS. To work with AWS
 <img src="http://www.jendavis.org/assets/opswork_diagram_stack.png" width="420" height="265">
 
 
+
 The **stack** is the top-level OpsWorks entity that will contain our layers, in this case specifically the Django App Server layer.
 
    1. Using your IAM user, sign in to the OpsWorks console at https://console.aws.amazon.com/opsworks.
@@ -277,7 +280,7 @@ The **stack** is the top-level OpsWorks entity that will contain our layers, in 
    4. Fill in the form as follows:
       * Stack name **DjangoTestStack**
       * Region **US West (Oregon)**
-      * Default operating system **Linux Red Hat Enterprise 7**
+      * Default operating system **Amazon Linux 2015.09**
    5. Click on custom Chef cookbooks **Yes**.
    6. Fill in the custom Chef cookbooks form with the following information:
       * Repository type
@@ -326,7 +329,16 @@ Next we will create our first layer. Remember that an **AWS OpsWorks layer** is 
 <img src="http://www.jendavis.org/assets/opswork_diagram_layer.png" width="420" height="239">
 
 ```
-LAYER_ID=$(aws opsworks create-layer --stack-id $STACK_ID --type custom --name DjangoDemoLayer --shortname djangodemolayer --output text)
+LAYER_ID=$(aws opsworks create-layer --stack-id $STACK_ID --type custom --name DjangoDemoLayer --shortname djangodemolayer --custom-recipes '{
+                "Undeploy": [],
+                "Setup": [],
+                "Configure": [],
+                "Shutdown": [],
+                "Deploy": [
+                  "opsworks-linux-demo-cookbook-django"
+                ]
+            }' --output text)
+
 ```
 
 Examine the layer you just created.
@@ -340,23 +352,21 @@ aws opsworks describe-layers --layer-ids $LAYER_ID
 
 <img src="http://www.jendavis.org/assets/opswork_diagram_app.png" width="450" height="161">
 
-
-    1. In the service navigation pane, choose Apps, as displayed in the following screenshot:
-    2. The Apps page displays. Choose Add an app. The Add App page displays.
-    3. For Settings, for Name, type dpaste.
-    4. For Application Source, for Repository URL, type
-    https://github.com/bartTC/dpaste.git
-
-
+    ```
+    APP_ID=$(aws opsworks create-app --stack-id $STACK_ID --name dpaste --app-source '{
+                "Url": "https://github.com/bartTC/dpaste.git",
+                "Type": "git"
+            }' --type other --output text)
+    ```
 
 ### Add an Instance to your Layer
 
-Add a ```c3.large``` instance to our Layer.
+Add a ```t2.micro``` instance to our Layer.
 
 <img src="http://www.jendavis.org/assets/opswork_diagram_instance.png" width="450" height="207">
 
 ```
-    INSTANCE_ID=$(aws opsworks  create-instance --stack-id $STACK_ID --layer-id $LAYER_ID --instance-type c3.large --output text)
+    INSTANCE_ID=$(aws opsworks  create-instance --stack-id $STACK_ID --layer-id $LAYER_ID --instance-type t2.micro --output text)
 
 ```
 
@@ -384,7 +394,7 @@ IPADDRESS=$(aws opsworks describe-instances --instance-ids $INSTANCE_ID --query 
 
 ```
 
-Now that you have created a functioning stack, layer, and instances, you can create additional stacks using the AWS CLI. You just need the ``ServiceRoleArn`` and the ``DefaultInstanceProfileArn`` which we obtained earlier in this how-to post.
+Now that you have created a functioning stack, layer, and instance, you can create additional stacks using the AWS CLI. You just need the ``ServiceRoleArn`` and the ``DefaultInstanceProfileArn`` which we obtained earlier in this how-to post.
 
 The command looks like this:
 
@@ -449,6 +459,7 @@ In this walk-through we used OpsWorks, Chef, and community cookbooks to create a
 * [AWS CLI](https://aws.amazon.com/cli/)
 * [AWS OpsWorks Lifecycle Events](http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-events.html)
 * [Green Unicorn](http://gunicorn.org/)
+* [Debugging and Troubleshooting Guide for OpsWorks](http://docs.aws.amazon.com/opsworks/latest/userguide/troubleshoot.html)
 
 [1]: https://docs.djangoproject.com/en/1.8/faq/general/#django-appears-to-be-a-mvc-framework-but-you-call-the-controller-the-view-and-the-view-the-template-how-come-you-don-t-use-the-standard-names
 [2]: http://pip.readthedocs.org/en/stable/reference/pip_install/#overview
