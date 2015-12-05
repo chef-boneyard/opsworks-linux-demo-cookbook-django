@@ -99,10 +99,30 @@ For the purposes of this part of the walkthrough, we assume that you have the fo
 Download and extract the Opsworks Linux Demo Django cookbook that contains our example code.  For example, using git you can clone the demo cookbook.
 
 ```
-git clone https://github.com/iennae/opsworks-linux-demo-cookbook-django
+git clone git@github.com:chef-cookbooks/opsworks-linux-demo-cookbook-django.git
 ```
 
 ### Examining our recipe
+
+The first item in our recipe is to include the default recipe from the [build-essential cookbook](https://github.com/chef-cookbooks/build-essential). This recipe ensures the packages required for compiling C software from source.
+
+```
+include_recipe 'build-essential'
+```
+
+We setup a variable that will allow us to setup an `app_path` based on the OpsWorks app shortname.
+
+```
+app = search(:aws_opsworks_app).first
+app_path = "/srv/#{app['shortname']}"
+```
+
+Based on the [requirements.txt](https://github.com/bartTC/dpaste/blob/master/requirements.txt) we need to install `mysql-python`, so we need to install the development package for mysql. The name of this package depends on the platform, so we set this up in the attributes file.
+ 
+```
+package node['django-demo']['mysql_package_name']
+```
+
 
 Within our default recipe, we are using the ``package`` resource to install ``git`` on our node.
 
@@ -154,32 +174,31 @@ For our application, this requirements.txt file is coming from our source code `
 
 Next, we add additional configuration information to the ``dpaste/settings/deploy.py`` file.
 
-TODO -- need to fix the path here, as it's incorrect within the scope of opsworks. probably should just say the app name is dpaste to eliminate the troubles here.
 
 ```
-  file ::File.join(path, 'dpaste', 'settings', 'deploy.py') do
-    content "from dpaste.settings.base import *\nfrom dpaste.settings.local_settings import *\n"
-  end
+file ::File.join(app_path, 'dpaste', 'settings', 'deploy.py') do
+  content "from dpaste.settings.base import *\nfrom dpaste.settings.local_settings import *\n"
+end
 
 ```
 
 Next within the ``application`` resource, we specify the ``django`` parameter. This is a very detailed parameter with a lot going on. Within this block we:
 
 * configure Django to be installed,
-* allow connections to Django from localhost only,
-* add the Dpaste application to the
+* allow connections to the application,
+* add the Dpaste application,
 * configure the Django Object Relational Mapping(ORM) to use a local SQLite database,
-* sync our models to our database,
-* propagate changes to our models to our database schema.
+* sync our models to our database, and
+* propagate changes to models to our database schema.
 
 ```
-  django do
-    allowed_hosts ['localhost', node['fqdn']]
-    settings_module 'dpaste.settings.deploy'
-    database 'sqlite:///dpaste.db'
-    syncdb true
-    migrate true
-  end
+django do
+  allowed_hosts ['localhost', node['ipaddress'], node['fqdn']]
+  settings_module 'dpaste.settings.deploy'
+  database 'sqlite:///dpaste.db'
+  syncdb true
+  migrate true
+end
 
 ```
 
@@ -401,7 +420,7 @@ From the OpsWorks Dashboard, identify and confirm that you have a user that has 
 ssh -i ~/.ssh/[your-keyfile] USER@INSTANCE-DNS
 ```
 
-Verify that in the Permissions section below that your user has the access to ssh to your `DjangoTestStack` stack. 
+Verify that in the Permissions section below that your user has the access to ssh to your `DjangoTestStack` stack. You should see a green checkmark in the SSH column for your stack.
 
 <img src="http://www.jendavis.org/assets/aws_security_group_permissions.png" width="450" height="113">
 
@@ -462,7 +481,7 @@ Delete the stack.
     aws opsworks delete-stack --stack-id $STACK_ID
 ```
 
-Remove the security group.
+If you set up a security group and are no longer using it, don't forget to remove it. If you know the group id, you can remove the security group from the command line.
 
 ```
    aws ec2 delete-security-group --group-id $GROUP_ID
