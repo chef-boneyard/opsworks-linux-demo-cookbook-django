@@ -118,7 +118,7 @@ app_path = "/srv/#{app['shortname']}"
 ```
 
 Based on the [requirements.txt](https://github.com/bartTC/dpaste/blob/master/requirements.txt) we need to install `mysql-python`, so we need to install the development package for mysql. The name of this package depends on the platform, so we set this up in the attributes file.
- 
+
 ```
 package node['django-demo']['mysql_package_name']
 ```
@@ -247,10 +247,10 @@ Using S3 is pretty simple. Create the bucket where you will store the cookbooks.
 
 Once it's created you can then use the AWS S3 CLI to copy the cookbook up to S3.
 
-1. Within the ``opsworks-linux-demo-cookbook-django`` directory run ``berks package``.[3][] This creates a single archive containing all of the required cookbooks.
+1. Within the ``opsworks-linux-demo-cookbook-django`` directory run ``berks package cookbooks.tar.gz``.[3][][4][] This creates a single archive containing all of the required cookbooks.
 2. Use the AWS S3 CLI to copy up the resulting cookbooks artifact to your bucket.
 ```
-aws s3 cp COOKBOOKS_ARTIFACT.tar.gz s3://YOURBUCKET/opsworks-linux-demo-cookbook-django.tar.gz
+aws s3 cp COOKBOOKS_ARTIFACT.tar.gz s3://YOURBUCKET/cookbooks.tar.gz
 ```
 3. Verify the upload with the AWS S3 CLI.
 
@@ -492,10 +492,6 @@ If you set up a security group and are no longer using it, don't forget to remov
 In this walk-through we used OpsWorks, Chef, and community cookbooks to create a simple web application using Django. 
 
 
-
-
-
-
 ## Further Resources
 
 
@@ -509,3 +505,4 @@ In this walk-through we used OpsWorks, Chef, and community cookbooks to create a
 [1]: https://docs.djangoproject.com/en/1.8/faq/general/#django-appears-to-be-a-mvc-framework-but-you-call-the-controller-the-view-and-the-view-the-template-how-come-you-don-t-use-the-standard-names
 [2]: http://pip.readthedocs.org/en/stable/reference/pip_install/#overview
 [3]: http://berkshelf.com/index.html
+[4]: http://docs.aws.amazon.com/opsworks/latest/userguide/best-practices-packaging-cookbooks-locally.html
