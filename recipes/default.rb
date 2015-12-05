@@ -23,7 +23,7 @@ application app_path do
   virtualenv
   pip_requirements
 
-  file ::File.join(path, 'dpaste', 'settings', 'deploy.py') do
+  file ::File.join(app_path, 'dpaste', 'settings', 'deploy.py') do
     content "from dpaste.settings.base import *\nfrom dpaste.settings.local_settings import *\n"
   end
 
