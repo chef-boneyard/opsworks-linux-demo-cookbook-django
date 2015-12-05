@@ -3,10 +3,7 @@ include_recipe 'build-essential'
 app = search(:aws_opsworks_app).first
 app_path = "/srv/#{app['shortname']}"
 
-package node.value_for_platform(
-  %w( debian ubuntu ) => { default: 'libmysqlclient-dev' },
-  %w( redhat centos ) => { '~> 7.0' => 'mariadb-devel', '~> 6.0' => 'mysql-devel' }
-)
+package node['django-demo']['package_name']
 
 package 'git' do
   # workaround for:
