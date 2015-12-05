@@ -220,7 +220,6 @@ aws_secret_access_key = PUT_YOUR_SECRET_ACCESS_KEY_HERE
 
 ```
 
-
 ## Bundling up the Cookbook for OpsWorks
 
 Identify your artifact store. OpsWorks can work with either `HTTP` or `S3`.
@@ -394,8 +393,27 @@ Obtain the IP Address of the instance that was just created.
 ```
 
 IPADDRESS=$(aws opsworks describe-instances --instance-ids $INSTANCE_ID --query 'Instances[*].PublicIp' --output text)
+```
+
+From the OpsWorks Dashboard, identify and confirm that you have a user that has access to ssh into the stack. Click on `My Settings`. You'll see a line like below that shows you how to connect to your instance.
 
 ```
+ssh -i ~/.ssh/[your-keyfile] USER@INSTANCE-DNS
+```
+
+Verify that in the Permissions section below that your user has the access to ssh to your `DjangoTestStack` stack. 
+
+<img src="http://www.jendavis.org/assets/aws_security_group_permissions.png" width="450" height="113">
+
+
+Ssh into your instance, and verify that your host has deployed the app.
+
+```
+ssh -i ~/.ssh/[your-keyfile] USER@IPADDRESS
+curl localhost
+```
+
+The default security group used with OpsWorks is `AWS-OpsWorks-Default-Server `. It only allows access to the server on port 22 via ssh. If you want to verify from your browser, create a security group that allows ingress access to the server on port 80.
 
 Now that you have created a functioning stack, layer, and instance, you can create additional stacks using the AWS CLI. You just need the ``ServiceRoleArn`` and the ``DefaultInstanceProfileArn`` which we obtained earlier in this how-to post.
 
@@ -444,6 +462,11 @@ Delete the stack.
     aws opsworks delete-stack --stack-id $STACK_ID
 ```
 
+Remove the security group.
+
+```
+   aws ec2 delete-security-group --group-id $GROUP_ID
+```
 
 ### Summary
 
