@@ -98,7 +98,7 @@ For the purposes of this part of the walkthrough, we assume that you have the fo
 
 We've gone ahead and created a sample cookbook that will use the [application_python](https://supermarket.chef.io/cookbooks/application_python) cookbook. 
 
-Inside of our `metadata.rb` file we include the [required dependencies](https://github.com/chef-cookbooks/opsworks-linux-demo-cookbook-django/blob/master/metadata.rb) on the community cookobooks `application_python`, `build-essential`, and `poise-python`.
+Inside of our `metadata.rb` file we include the [required dependencies](https://github.com/chef-cookbooks/opsworks-linux-demo-cookbook-django/blob/master/metadata.rb) on the community cookbooks `application_python`, `build-essential`, and `poise-python`.
 
 Download and extract the Opsworks Linux Demo Django cookbook that contains our example code.  For example, using git you can clone the demo cookbook.
 
