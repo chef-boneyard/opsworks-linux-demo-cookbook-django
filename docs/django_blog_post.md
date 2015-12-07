@@ -247,7 +247,7 @@ Using S3 is pretty simple. Create the bucket where you will store the cookbooks.
 
 Once it's created you can then use the AWS S3 CLI to copy the cookbook up to S3.
 
-1. Within the ``opsworks-linux-demo-cookbook-django`` directory run ``berks package cookbooks.tar.gz``.[3][][4][] This creates a single archive containing all of the required cookbooks.
+1. Within the ``opsworks-linux-demo-cookbook-django`` directory run ``berks package cookbooks.tar.gz``.[3][],[4][] This creates a single archive containing all of the required cookbooks.
 2. Use the AWS S3 CLI to copy up the resulting cookbooks artifact to your bucket.
 ```
 aws s3 cp COOKBOOKS_ARTIFACT.tar.gz s3://YOURBUCKET/cookbooks.tar.gz
