@@ -83,7 +83,7 @@ In this how-to, we will use **gunicorn**, a lightweight Python WSGI HTTP server.
 
 The [Chef Supermarket](http://supermarket.chef.io) is the location to find cookbooks shared by and with the community. Some of these cookbooks are maintained by my team, the Chef Community Engineering team, others are maintained by individuals in the community.
 
-We could create a python application cookbook that would pull the application code, create the virtualenv, install the python package and all dependencies, deploy and configure our database, and start up a web server, or we could use a cookbook that is available in the community. For the purpose of this how-to, the [application_python](https://supermarket.chef.io/cookbooks/application_python) cookbook to deploy and manage our Django app.
+We could create a python application cookbook that would pull the application code, create the virtualenv, install the python package and all dependencies, deploy and configure our database, and start up a web server, or we could use a cookbook that is available in the community. For the purpose of this how-to, Noah Kantrowitz's [application_python](https://supermarket.chef.io/cookbooks/application_python) cookbook to deploy and manage our Django app will work.
 
 The Supermarket interface gives us quite a bit of information about this cookbook. It shows the README which has information about quickly getting started, requirements, and dependencies. We can go directly to the source code, or [download the cookbook](https://supermarket.chef.io/cookbooks/application_python/download) directly from the Supermarket.
 
