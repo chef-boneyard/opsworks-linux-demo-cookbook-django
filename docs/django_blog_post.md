@@ -89,12 +89,16 @@ The Supermarket interface gives us quite a bit of information about this cookboo
 
 A key requirement to note is that **Chef 12** or later is required. Make sure that if you modify the instructions in this how-to that at minimum you use Chef 12 if using this cookbook.
 
-## Download the Cookbook from the Supermarket
+## Download the Sample Cookbook from the Supermarket
 
 For the purposes of this part of the walkthrough, we assume that you have the following setup on your working environment:
 
 * [git (or some mechanism to access and download the sample repo)](https://git-scm.com/downloads)
 * [Chef Development Kit (chefdk)](https://downloads.chef.io/chef-dk/)
+
+We've gone ahead and created a sample cookbook that will use the [application_python](https://supermarket.chef.io/cookbooks/application_python) cookbook. 
+
+Inside of our `metadata.rb` file we include the [required dependencies](https://github.com/chef-cookbooks/opsworks-linux-demo-cookbook-django/blob/master/metadata.rb) on the community cookobooks `application_python`, `build-essential`, and `poise-python`.
 
 Download and extract the Opsworks Linux Demo Django cookbook that contains our example code.  For example, using git you can clone the demo cookbook.
 
